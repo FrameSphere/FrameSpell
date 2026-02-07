@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zahlung erfolgreich - Rechtschreibe API</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="payment.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="payment-result">
+        <div class="result-card">
+            <div class="result-icon success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            
+            <h1>Zahlung erfolgreich!</h1>
+            
+            <p>
+                Vielen Dank für Ihr Upgrade zu Professional! <br>
+                Ihr Account wurde erfolgreich aktiviert und Sie haben jetzt Zugriff auf alle Professional-Features.
+            </p>
+            
+            <div class="result-actions">
+                <button class="btn btn-primary btn-large btn-full" onclick="window.location.href='index.html#dashboard'">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Zum Dashboard
+                </button>
+                <button class="btn btn-outline btn-large btn-full" onclick="window.location.href='index.html#docs'">
+                    <i class="fas fa-book"></i>
+                    Dokumentation ansehen
+                </button>
+            </div>
+            
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                <p style="color: var(--text-muted); font-size: 0.875rem;">
+                    Eine Bestätigungs-E-Mail wurde an Ihre E-Mail-Adresse gesendet.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Verify session and update user status
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        
+        if (sessionId) {
+            // Optional: Verify the session with backend
+            const authToken = localStorage.getItem('authToken');
+            if (authToken) {
+                fetch(`http://localhost:8000/verify-checkout-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ session_id: sessionId })
+                }).catch(err => console.error('Verification error:', err));
+            }
+        }
+    </script>
+</body>
+</html>

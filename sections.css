@@ -1,0 +1,450 @@
+/* Pricing Section Styles */
+.pricing-section {
+    padding: 4rem 0;
+    background: var(--background);
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pricing-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.pricing-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-color);
+}
+
+.pricing-card.featured {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 1px var(--primary-color);
+    transform: scale(1.05);
+}
+
+.pricing-card.featured:hover {
+    transform: scale(1.08) translateY(-10px);
+}
+
+.pricing-badge {
+    position: absolute;
+    top: -1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient-primary);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+}
+
+.pricing-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.pricing-header h3 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.pricing-price {
+    margin: 1.5rem 0;
+}
+
+.price-amount {
+    font-size: 3.5rem;
+    font-weight: 700;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.price-period {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+}
+
+.pricing-features {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.feature-item i {
+    color: var(--success);
+    font-size: 1.125rem;
+    min-width: 1.125rem;
+}
+
+.feature-item.disabled i {
+    color: var(--text-muted);
+}
+
+.pricing-note {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Documentation Section Styles */
+.docs-section {
+    padding: 4rem 0;
+    background: var(--surface);
+}
+
+.docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.doc-card {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.doc-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+}
+
+.doc-icon {
+    width: 4rem;
+    height: 4rem;
+    background: var(--gradient-primary);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.doc-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.doc-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.code-example {
+    background: #1a1f36;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.code-example pre {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.code-example code {
+    color: #e2e8f0;
+}
+
+.doc-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+}
+
+.step-number {
+    width: 2rem;
+    height: 2rem;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.limit-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.limit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--surface);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+}
+
+.limit-row strong {
+    color: var(--primary-color);
+}
+
+.error-codes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.error-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+}
+
+.error-code {
+    background: var(--error);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-family: monospace;
+    min-width: 3rem;
+    text-align: center;
+}
+
+.docs-cta {
+    text-align: center;
+    margin-top: 4rem;
+    padding: 3rem 2rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+}
+
+.docs-cta h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.docs-cta p {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+}
+
+/* Responsive Design für neue Sektionen */
+@media (max-width: 768px) {
+    .pricing-grid,
+    .docs-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .pricing-card.featured {
+        transform: scale(1);
+    }
+    
+    .pricing-card.featured:hover {
+        transform: translateY(-10px);
+    }
+    
+    .price-amount {
+        font-size: 2.5rem;
+    }
+    
+    .doc-card {
+        padding: 1.5rem;
+    }
+    
+    .language-selector-docs {
+        flex-wrap: wrap;
+    }
+    
+    .lang-btn {
+        flex: 1 1 45%;
+    }
+}
+
+/* Language Selector for Documentation */
+.language-selector-docs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    padding: 0.5rem;
+    background: var(--surface);
+    border-radius: 0.75rem;
+    overflow-x: auto;
+}
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.lang-btn i {
+    font-size: 1.25rem;
+}
+
+.lang-btn:hover {
+    background: var(--background);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.lang-btn.active {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.code-examples-container {
+    position: relative;
+    min-height: 400px;
+}
+
+.code-example-block {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.code-example-block.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Full width doc cards */
+.doc-card.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Code Header with Copy Button */
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(99, 102, 241, 0.1);
+    border-bottom: 1px solid var(--border);
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.code-lang-label {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.copy-code-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.copy-code-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.copy-code-btn:active {
+    transform: translateY(0);
+}
+
+.copy-code-btn i {
+    font-size: 1rem;
+}
+
+/* Adjust code-example when header is present */
+.code-example-block .code-example {
+    border-radius: 0 0 0.75rem 0.75rem;
+    margin-top: 0;
+}
