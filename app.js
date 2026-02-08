@@ -1,5 +1,6 @@
 // API Base URL - anpassen je nach Backend-Setup
-const API_BASE_URL = window.API_CONFIG?.BASE_URL;
+const API_BASE_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:8000';
+console.log('🚀 API URL:', API_BASE_URL);
 
 // State Management
 let currentUser = null;
