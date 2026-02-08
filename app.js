@@ -214,16 +214,29 @@ async function loadUserProfile() {
 }
 
 async function spellcheck(text, language = 'de', isDemo = false) {
-    const endpoint = isDemo ? '/spellcheck-demo' : '/spellcheck';
     const startTime = Date.now();
     
-    const data = await apiRequest(endpoint, {
+    // Demo: Registriere temporären User oder zeige Warnung
+    if (isDemo) {
+        showToast('Demo erfordert Registrierung. Bitte melden Sie sich an!', 'warning');
+        setTimeout(() => showElement(elements.registerModal), 1000);
+        throw new Error('Demo requires authentication');
+    }
+    
+    const response = await apiRequest('/spellcheck', {
         method: 'POST',
         body: JSON.stringify({ text, language }),
     });
     
+    const data = response.data || response;
     const processingTime = Date.now() - startTime;
-    return { ...data, actual_processing_time: processingTime };
+    
+    return { 
+        corrected_text: data.corrected, 
+        original: text,
+        actual_processing_time: processingTime,
+        tokens_used: data.tokens_used 
+    };
 }
 
 async function regenerateApiKey() {
