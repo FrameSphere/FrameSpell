@@ -216,13 +216,37 @@ async function loadUserProfile() {
 async function spellcheck(text, language = 'de', isDemo = false) {
     const startTime = Date.now();
     
-    // Demo: Registriere temporären User oder zeige Warnung
+    // Demo: Direkt HuggingFace API aufrufen (ohne Auth)
     if (isDemo) {
-        showToast('Demo erfordert Registrierung. Bitte melden Sie sich an!', 'warning');
-        setTimeout(() => showElement(elements.registerModal), 1000);
-        throw new Error('Demo requires authentication');
+        try {
+            const response = await fetch('https://api-inference.huggingface.co/models/FrameSphereHF/FrameSpell-mt5', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ inputs: `grammar: ${text}` }),
+            });
+            
+            if (!response.ok) {
+                throw new Error('Demo service unavailable');
+            }
+            
+            const mlData = await response.json();
+            const corrected = Array.isArray(mlData) ? mlData[0]?.generated_text : mlData.generated_text || text;
+            
+            return {
+                corrected_text: corrected,
+                original: text,
+                actual_processing_time: Date.now() - startTime,
+                tokens_used: Math.ceil(text.length / 4)
+            };
+        } catch (error) {
+            console.error('Demo error:', error);
+            throw new Error('Demo ist vorübergehend nicht verfügbar. Bitte registrieren Sie sich für vollen Zugriff.');
+        }
     }
     
+    // Normaler Spellcheck mit Auth
     const response = await apiRequest('/spellcheck', {
         method: 'POST',
         body: JSON.stringify({ text, language }),
