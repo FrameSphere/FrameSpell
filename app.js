@@ -157,8 +157,11 @@ async function apiRequest(endpoint, options = {}) {
         const response = await fetch(url, finalOptions);
         const data = await response.json();
         
+        console.log('API Response:', response.status, data);
+        
         if (!response.ok) {
-            throw new Error(data.detail || 'API request failed');
+            const errorMsg = data.error || data.detail || data.message || JSON.stringify(data) || 'API request failed';
+            throw new Error(errorMsg);
         }
         
         return data;
@@ -169,37 +172,42 @@ async function apiRequest(endpoint, options = {}) {
 }
 
 async function login(email, password) {
-    const data = await apiRequest('/login', {
+    const response = await apiRequest('/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
     });
     
-    authToken = data.access_token;
+    const data = response.data || response;
+    authToken = data.token || data.access_token;
     localStorage.setItem('authToken', authToken);
     
-    await loadUserProfile();
+    currentUser = data.user;
+    updateUI();
     showToast('Erfolgreich angemeldet!', 'success');
     
     return data;
 }
 
 async function register(email, password) {
-    const data = await apiRequest('/register', {
+    const response = await apiRequest('/register', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
     });
     
-    authToken = data.access_token;
+    const data = response.data || response;
+    authToken = data.token || data.access_token;
     localStorage.setItem('authToken', authToken);
     
-    await loadUserProfile();
+    currentUser = data.user;
+    updateUI();
     showToast('Registrierung erfolgreich!', 'success');
     
     return data;
 }
 
 async function loadUserProfile() {
-    const data = await apiRequest('/me');
+    const response = await apiRequest('/me');
+    const data = response.data || response;
     currentUser = data;
     updateUI();
     return data;
