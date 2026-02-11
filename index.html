@@ -330,9 +330,13 @@ fetch(url, {
 })
 .then(response => response.json())
 .then(result => {
-  console.log('Korrigiert:', result.corrected_text);
-  console.log('Korrekturen:', result.corrections_made);
-  console.log('Verarbeitungszeit:', result.processing_time, 'ms');
+  if (result.success) {
+    console.log('Korrigiert:', result.data.corrected);
+    console.log('Original:', result.data.original);
+    console.log('Verarbeitungszeit:', result.data.processing_time, 'ms');
+  } else {
+    console.error('Fehler:', result.error);
+  }
 })
 .catch(error => {
   console.error('Fehler:', error);
@@ -370,9 +374,13 @@ response = requests.post(url, json=data, headers=headers)
 
 if response.status_code == 200:
     result = response.json()
-    print("Korrigiert:", result["corrected_text"])
-    print("Korrekturen:", result["corrections_made"])
-    print("Verarbeitungszeit:", result["processing_time"], "ms")
+    if result.get("success"):
+        data = result["data"]
+        print("Korrigiert:", data["corrected"])
+        print("Original:", data["original"])
+        print("Verarbeitungszeit:", data["processing_time"], "ms")
+    else:
+        print("Fehler:", result.get("error", "Unbekannter Fehler"))
 else:
     print("Fehler:", response.status_code, response.text)
 
@@ -408,9 +416,13 @@ const data = {
 axios.post(url, data, { headers })
   .then(response => {
     const result = response.data;
-    console.log('Korrigiert:', result.corrected_text);
-    console.log('Korrekturen:', result.corrections_made);
-    console.log('Verarbeitungszeit:', result.processing_time, 'ms');
+    if (result.success) {
+      console.log('Korrigiert:', result.data.corrected);
+      console.log('Original:', result.data.original);
+      console.log('Verarbeitungszeit:', result.data.processing_time, 'ms');
+    } else {
+      console.error('Fehler:', result.error);
+    }
   })
   .catch(error => {
     if (error.response) {
@@ -458,8 +470,14 @@ curl_close($ch);
 
 if ($httpCode == 200) {
     $result = json_decode($response, true);
-    echo "Korrigiert: " . $result["corrected_text"] . "\n";
-    echo "Verarbeitungszeit: " . $result["processing_time"] . " ms\n";
+    if ($result["success"]) {
+        $data = $result["data"];
+        echo "Korrigiert: " . $data["corrected"] . "\n";
+        echo "Original: " . $data["original"] . "\n";
+        echo "Verarbeitungszeit: " . $data["processing_time"] . " ms\n";
+    } else {
+        echo "Fehler: " . $result["error"] . "\n";
+    }
 } else {
     echo "Fehler: " . $httpCode . " - " . $response . "\n";
 }
@@ -487,15 +505,13 @@ curl -X POST https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck \
 
 # Antwort (Beispiel):
 # {
-#   "corrected_text": "Das ist ein Beispiel Text mit Fehlern",
-#   "corrections_made": [
-#     {
-#       "original": "Beispeil",
-#       "corrected": "Beispiel",
-#       "type": "spelling"
-#     }
-#   ],
-#   "processing_time": 125.5
+#   "success": true,
+#   "data": {
+#     "corrected": "Das ist ein Beispiel Text mit Fehlern",
+#     "original": "Das ist ein Beispeil text mit felern",
+#     "processing_time": 125.5,
+#     "tokens_used": 8
+#   }
 # }
 
 # Mit Pretty Print:
@@ -519,15 +535,13 @@ curl -X POST http://localhost:8000/spellcheck \
                         <div class="code-example">
                             <pre><code>// Response
 {
-  "corrected_text": "Korrigierter Text",
-  "corrections_made": [
-    {
-      "original": "falsh",
-      "corrected": "falsch",
-      "type": "spelling"
-    }
-  ],
-  "processing_time": 125.5
+  "success": true,
+  "data": {
+    "corrected": "Korrigierter Text",
+    "original": "Ihr Originaltext",
+    "processing_time": 125.5,
+    "tokens_used": 5
+  }
 }</code></pre>
                         </div>
                     </div>
