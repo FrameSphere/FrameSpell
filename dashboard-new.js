@@ -495,6 +495,101 @@ function initSettingsHandlers() {
     loadSettings();
 }
 
+// Plan Management Functions
+function updatePlanDisplay() {
+    if (!currentUser) return;
+    
+    const subscriptionType = currentUser.subscription_type || 'free';
+    const planName = {
+        'free': 'Kostenlos',
+        'professional': 'Professional',
+        'enterprise': 'Enterprise'
+    }[subscriptionType] || 'Kostenlos';
+    
+    // Update current plan badge
+    const currentPlanName = document.getElementById('current-plan-name');
+    if (currentPlanName) currentPlanName.textContent = planName;
+    
+    // Show/hide plan badges and buttons
+    document.getElementById('free-current-badge')?.style.setProperty('display', subscriptionType === 'free' ? 'flex' : 'none');
+    document.getElementById('pro-current-badge')?.style.setProperty('display', subscriptionType === 'professional' ? 'flex' : 'none');
+    document.getElementById('enterprise-current-badge')?.style.setProperty('display', subscriptionType === 'enterprise' ? 'flex' : 'none');
+    
+    // Show/hide upgrade/downgrade buttons
+    const upgradeToProBtn = document.getElementById('upgrade-to-pro-btn');
+    const downgradeToFreeBtn = document.getElementById('downgrade-to-free-btn');
+    
+    if (upgradeToProBtn) {
+        upgradeToProBtn.style.display = subscriptionType === 'professional' ? 'none' : 'block';
+    }
+    
+    if (downgradeToFreeBtn) {
+        downgradeToFreeBtn.style.display = subscriptionType !== 'free' ? 'block' : 'none';
+    }
+    
+    // Show billing info for paid plans
+    const billingInfo = document.getElementById('billing-info');
+    if (billingInfo) {
+        billingInfo.style.display = subscriptionType !== 'free' ? 'flex' : 'none';
+        
+        // Calculate next billing date (30 days from now)
+        const nextBilling = new Date();
+        nextBilling.setDate(nextBilling.getDate() + 30);
+        const nextBillingDate = document.getElementById('next-billing-date');
+        if (nextBillingDate) {
+            nextBillingDate.textContent = nextBilling.toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+    }
+}
+
+// Event Handlers
+document.getElementById('upgrade-to-pro-btn')?.addEventListener('click', () => {
+    // Redirect to payment page
+    window.location.href = 'payment.html';
+});
+
+document.getElementById('contact-enterprise-btn')?.addEventListener('click', () => {
+    showToast('Enterprise-Kontakt: support@framespell.de', 'info');
+    // Optional: Open modal with contact form
+});
+
+document.getElementById('downgrade-to-free-btn')?.addEventListener('click', async () => {
+    if (!confirm('Möchten Sie wirklich auf den kostenlosen Plan zurückkehren? Ihre Professional-Vorteile gehen am Ende des Abrechnungszeitraums verloren.')) {
+        return;
+    }
+    
+    try {
+        showLoading();
+        
+        // API Call zum Downgrade (Backend muss noch implementiert werden)
+        // const response = await apiRequest('/downgrade', {
+        //     method: 'POST',
+        //     body: JSON.stringify({ plan: 'free' })
+        // });
+        
+        // Temporär: Lokale Aktualisierung
+        showToast('Downgrade geplant. Ihre Änderung wird am Ende des Abrechnungszeitraums aktiv.', 'success');
+        
+        // TODO: Backend implementieren für echtes Downgrade
+        
+    } catch (error) {
+        showToast(error.message || 'Fehler beim Downgrade', 'error');
+    } finally {
+        hideLoading();
+    }
+});
+
+// Update plan display when user data changes
+const originalUpdateUI = updateUI;
+updateUI = function() {
+    originalUpdateUI();
+    updatePlanDisplay();
+};
+
 // Initialize when dashboard is shown
 document.addEventListener('DOMContentLoaded', () => {
     initSettingsHandlers();

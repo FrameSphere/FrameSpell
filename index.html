@@ -863,6 +863,120 @@ curl -X POST http://localhost:8000/spellcheck \
                             </div>
                         </div>
                     </div>
+
+                    <div class="content-card">
+                        <h2><i class="fas fa-crown"></i> Plan verwalten</h2>
+                        <div class="plan-management">
+                            <!-- Aktueller Plan -->
+                            <div class="current-plan-badge" id="current-plan-display">
+                                <div class="plan-badge-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="plan-badge-info">
+                                    <span class="plan-badge-label">Aktueller Plan</span>
+                                    <span class="plan-badge-name" id="current-plan-name">Kostenlos</span>
+                                </div>
+                            </div>
+
+                            <!-- Plan Optionen -->
+                            <div class="plan-options">
+                                <!-- Free Plan -->
+                                <div class="plan-option free-plan" id="plan-option-free">
+                                    <div class="plan-option-header">
+                                        <h4>Kostenlos</h4>
+                                        <span class="plan-price">€0<small>/Monat</small></span>
+                                    </div>
+                                    <div class="plan-option-features">
+                                        <div class="plan-feature">
+                                            <i class="fas fa-check"></i>
+                                            <span>20 Anfragen/Minute</span>
+                                        </div>
+                                        <div class="plan-feature">
+                                            <i class="fas fa-check"></i>
+                                            <span>Deutsch-Modell</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-outline btn-full btn-sm" id="downgrade-to-free-btn" style="display: none;">
+                                        <i class="fas fa-arrow-down"></i> Zu Free wechseln
+                                    </button>
+                                    <div class="plan-current-badge" id="free-current-badge">
+                                        <i class="fas fa-star"></i> Aktueller Plan
+                                    </div>
+                                </div>
+
+                                <!-- Professional Plan -->
+                                <div class="plan-option pro-plan" id="plan-option-pro">
+                                    <div class="plan-recommended-badge">
+                                        <i class="fas fa-star"></i> Empfohlen
+                                    </div>
+                                    <div class="plan-option-header">
+                                        <h4>Professional</h4>
+                                        <span class="plan-price">€29<small>/Monat</small></span>
+                                    </div>
+                                    <div class="plan-option-features">
+                                        <div class="plan-feature">
+                                            <i class="fas fa-check"></i>
+                                            <span>100 Anfragen/Minute</span>
+                                        </div>
+                                        <div class="plan-feature">
+                                            <i class="fas fa-check"></i>
+                                            <span>Alle Sprachen</span>
+                                        </div>
+                                        <div class="plan-feature">
+                                            <i class="fas fa-check"></i>
+                                            <span>Prioritäts-Support</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-full btn-sm" id="upgrade-to-pro-btn">
+                                        <i class="fas fa-arrow-up"></i> Auf Pro upgraden
+                                    </button>
+                                    <div class="plan-current-badge" id="pro-current-badge" style="display: none;">
+                                        <i class="fas fa-star"></i> Aktueller Plan
+                                    </div>
+                                </div>
+
+                                <!-- Enterprise Plan -->
+                                <div class="plan-option enterprise-plan" id="plan-option-enterprise">
+                                    <div class="plan-option-header">
+                                        <h4>Enterprise</h4>
+                                        <span class="plan-price">€290<small>/Monat</small></span>
+                                    </div>
+                                    <div class="plan-option-features">
+                                        <div class="plan-feature">
+                                            <i class="fas fa-check"></i>
+                                            <span>Unbegrenzte Anfragen</span>
+                                        </div>
+                                        <div class="plan-feature">
+                                            <i class="fas fa-check"></i>
+                                            <span>Custom Modelle</span>
+                                        </div>
+                                        <div class="plan-feature">
+                                            <i class="fas fa-check"></i>
+                                            <span>SLA-Garantie</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-outline btn-full btn-sm" id="contact-enterprise-btn">
+                                        <i class="fas fa-envelope"></i> Kontakt aufnehmen
+                                    </button>
+                                    <div class="plan-current-badge" id="enterprise-current-badge" style="display: none;">
+                                        <i class="fas fa-star"></i> Aktueller Plan
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Billing Info -->
+                            <div class="billing-info" id="billing-info" style="display: none;">
+                                <div class="billing-info-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <div class="billing-info-text">
+                                    <p>Nächste Abrechnung: <strong id="next-billing-date">-</strong></p>
+                                    <p class="billing-note">Kündigung jederzeit möglich</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="content-card full-width">
                         <h2>Schnellzugriff</h2>
                         <div class="quick-actions">
