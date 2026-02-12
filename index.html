@@ -1051,6 +1051,69 @@ curl -X POST http://localhost:8000/spellcheck \
                             </div>
                         </div>
                     </div>
+                    <div class="content-card">
+                                <h2><i class="fas fa-cog"></i> Einstellungen</h2>
+                                <div class="settings-section">
+                                    <div class="setting-item">
+                                        <div class="setting-header">
+                                            <div class="setting-info">
+                                                <h4>Kostenpflichtige Anfragen erlauben</h4>
+                                                <p>Anfragen über das kostenlose Limit hinaus zulassen</p>
+                                            </div>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="allow-paid-requests" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="setting-details">
+                                            <div class="setting-detail-item">
+                                                <i class="fas fa-info-circle"></i>
+                                                <span>Kosten: <strong>€0.009</strong> pro Anfrage über Limit</span>
+                                            </div>
+                                            <div class="setting-detail-item">
+                                                <i class="fas fa-shield-alt"></i>
+                                                <span>Max. €50/Monat Sicherheitslimit</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-header">
+                                            <div class="setting-info">
+                                                <h4>E-Mail Benachrichtigungen</h4>
+                                                <p>Bei Erreichen von 80% des Limits benachrichtigen</p>
+                                            </div>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="email-notifications" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-header">
+                                            <div class="setting-info">
+                                                <h4>Auto-Upgrade bei Limit</h4>
+                                                <p>Automatisch auf Professional upgraden bei häufiger Limit-Erreichung</p>
+                                            </div>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="auto-upgrade">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div class="setting-details">
+                                            <div class="setting-detail-item">
+                                                <i class="fas fa-rocket"></i>
+                                                <span>Professional: 100 Anfragen/Min für €29/Monat</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-primary btn-full" id="save-settings-btn">
+                                        <i class="fas fa-save"></i> Einstellungen speichern
+                                    </button>
+                                </div>
+                            </div>
                     <div class="content-card full-width">
                         <h2>API live testen</h2>
                         <div class="api-tester">

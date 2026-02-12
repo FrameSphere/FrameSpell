@@ -437,6 +437,69 @@ function integrateNewDashboard() {
     }
 }
 
+// Settings Management
+function initSettingsHandlers() {
+    const allowPaidCheckbox = document.getElementById('allow-paid-requests');
+    const emailNotificationsCheckbox = document.getElementById('email-notifications');
+    const autoUpgradeCheckbox = document.getElementById('auto-upgrade');
+    const saveSettingsBtn = document.getElementById('save-settings-btn');
+
+    // Load saved settings
+    function loadSettings() {
+        const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+        if (allowPaidCheckbox) allowPaidCheckbox.checked = settings.allowPaidRequests !== false;
+        if (emailNotificationsCheckbox) emailNotificationsCheckbox.checked = settings.emailNotifications !== false;
+        if (autoUpgradeCheckbox) autoUpgradeCheckbox.checked = settings.autoUpgrade === true;
+    }
+
+    // Save settings
+    async function saveSettings() {
+        const settings = {
+            allowPaidRequests: allowPaidCheckbox?.checked,
+            emailNotifications: emailNotificationsCheckbox?.checked,
+            autoUpgrade: autoUpgradeCheckbox?.checked
+        };
+
+        // Save to localStorage (später: Backend API Call)
+        localStorage.setItem('userSettings', JSON.stringify(settings));
+
+        // TODO: API Call zum Backend
+        // await apiRequest('/settings', {
+        //     method: 'PUT',
+        //     body: JSON.stringify(settings)
+        // });
+
+        showToast('Einstellungen gespeichert!', 'success');
+    }
+
+    // Event Listeners
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener('click', saveSettings);
+    }
+
+    // Auto-save on toggle change
+    [allowPaidCheckbox, emailNotificationsCheckbox, autoUpgradeCheckbox].forEach(checkbox => {
+        if (checkbox) {
+            checkbox.addEventListener('change', () => {
+                // Visual feedback
+                const settingItem = checkbox.closest('.setting-item');
+                settingItem.style.background = 'rgba(99, 102, 241, 0.1)';
+                setTimeout(() => {
+                    settingItem.style.background = '';
+                }, 300);
+            });
+        }
+    });
+
+    // Load settings on init
+    loadSettings();
+}
+
+// Initialize when dashboard is shown
+document.addEventListener('DOMContentLoaded', () => {
+    initSettingsHandlers();
+});
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
