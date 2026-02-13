@@ -101,6 +101,16 @@
             
             if (profilePage) profilePage.classList.add('active');
             if (profileTab) profileTab.classList.add('active');
+            
+            // Re-initialisiere Dashboard Event Handlers
+            if (typeof initDashboard === 'function') {
+                initDashboard();
+            }
+            
+            // Lade User-Daten ins Dashboard
+            if (typeof loadDashboardData === 'function') {
+                loadDashboardData();
+            }
         }
         
         showToast('Erfolgreich mit GitHub angemeldet!', 'success');
