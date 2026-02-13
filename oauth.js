@@ -63,13 +63,47 @@
     
     // Handle OAuth Callback
     window.handleOAuthCallback = function(token, userData) {
-        authToken = token;
-        currentUser = userData;
+        // Setze authToken und currentUser global
+        window.authToken = token;
+        window.currentUser = userData;
         localStorage.setItem('authToken', token);
         
-        updateUI();
-        showDashboard();
-        showToast('Erfolgreich angemeldet!', 'success');
+        // Close modals
+        const loginModal = document.getElementById('login-modal');
+        const registerModal = document.getElementById('register-modal');
+        if (loginModal) loginModal.classList.add('hidden');
+        if (registerModal) registerModal.classList.add('hidden');
+        
+        // Update UI
+        if (typeof updateUI === 'function') {
+            updateUI();
+        }
+        
+        // Show Dashboard direkt auf Profil-Seite
+        const dashboardWrapper = document.getElementById('dashboard-wrapper');
+        const mainContent = document.querySelector('.main-content');
+        
+        if (dashboardWrapper && mainContent) {
+            mainContent.style.display = 'none';
+            dashboardWrapper.classList.remove('hidden');
+            dashboardWrapper.style.display = 'flex';
+            
+            // Zeige Profil-Seite
+            document.querySelectorAll('.dashboard-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.querySelectorAll('.dashboard-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            const profilePage = document.getElementById('page-profile');
+            const profileTab = document.querySelector('[data-page="profile"]');
+            
+            if (profilePage) profilePage.classList.add('active');
+            if (profileTab) profileTab.classList.add('active');
+        }
+        
+        showToast('Erfolgreich mit GitHub angemeldet!', 'success');
     };
     
     // Check if we're returning from OAuth
