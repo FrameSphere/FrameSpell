@@ -4,12 +4,9 @@
     window.initDashboard = function() {
         console.log('Re-initializing dashboard...');
         
-        // Re-setup all event listeners
-        setupDashboardEventListeners();
-        
-        // Reload settings for current user
-        if (typeof loadSettings === 'function') {
-            loadSettings();
+        // Re-setup event listeners if function exists
+        if (typeof setupDashboardEventListeners === 'function') {
+            setupDashboardEventListeners();
         }
     };
     
@@ -17,12 +14,22 @@
     window.loadDashboardData = function() {
         console.log('Loading dashboard data...');
         
-        if (typeof loadDashboardData === 'function') {
-            loadDashboardData();
-        }
-        
+        // Call updateDashboardUI if it exists
         if (typeof updateDashboardUI === 'function') {
             updateDashboardUI();
+        }
+        
+        // Load user-specific settings
+        if (currentUser) {
+            const settings = window.loadUserSettings();
+            
+            const allowPaidCheckbox = document.getElementById('allow-paid-requests');
+            const emailNotificationsCheckbox = document.getElementById('email-notifications');
+            const autoUpgradeCheckbox = document.getElementById('auto-upgrade');
+            
+            if (allowPaidCheckbox) allowPaidCheckbox.checked = settings.allowPaidRequests !== false;
+            if (emailNotificationsCheckbox) emailNotificationsCheckbox.checked = settings.emailNotifications !== false;
+            if (autoUpgradeCheckbox) autoUpgradeCheckbox.checked = settings.autoUpgrade === true;
         }
     };
     
@@ -46,48 +53,31 @@
     
     // Fix 4: Override settings handlers to use user-specific storage
     document.addEventListener('DOMContentLoaded', () => {
-        const saveSettingsBtn = document.getElementById('save-settings-btn');
-        
-        if (saveSettingsBtn) {
-            // Remove old listeners by cloning
-            const newSaveBtn = saveSettingsBtn.cloneNode(true);
-            saveSettingsBtn.parentNode.replaceChild(newSaveBtn, saveSettingsBtn);
+        setTimeout(() => {
+            const saveSettingsBtn = document.getElementById('save-settings-btn');
             
-            // Add new user-specific listener
-            newSaveBtn.addEventListener('click', () => {
-                if (!currentUser) {
-                    showToast('Bitte melden Sie sich an', 'error');
-                    return;
-                }
+            if (saveSettingsBtn) {
+                // Remove old listeners by cloning
+                const newSaveBtn = saveSettingsBtn.cloneNode(true);
+                saveSettingsBtn.parentNode.replaceChild(newSaveBtn, saveSettingsBtn);
                 
-                const settings = {
-                    allowPaidRequests: document.getElementById('allow-paid-requests')?.checked,
-                    emailNotifications: document.getElementById('email-notifications')?.checked,
-                    autoUpgrade: document.getElementById('auto-upgrade')?.checked
-                };
-                
-                window.saveUserSettings(settings);
-                showToast('Einstellungen gespeichert!', 'success');
-            });
-        }
-        
-        // Load settings when user changes
-        const originalUpdateUI = window.updateUI;
-        window.updateUI = function() {
-            if (originalUpdateUI) originalUpdateUI();
-            
-            // Load user-specific settings
-            if (currentUser) {
-                const settings = window.loadUserSettings();
-                
-                const allowPaidCheckbox = document.getElementById('allow-paid-requests');
-                const emailNotificationsCheckbox = document.getElementById('email-notifications');
-                const autoUpgradeCheckbox = document.getElementById('auto-upgrade');
-                
-                if (allowPaidCheckbox) allowPaidCheckbox.checked = settings.allowPaidRequests !== false;
-                if (emailNotificationsCheckbox) emailNotificationsCheckbox.checked = settings.emailNotifications !== false;
-                if (autoUpgradeCheckbox) autoUpgradeCheckbox.checked = settings.autoUpgrade === true;
+                // Add new user-specific listener
+                newSaveBtn.addEventListener('click', () => {
+                    if (!currentUser) {
+                        showToast('Bitte melden Sie sich an', 'error');
+                        return;
+                    }
+                    
+                    const settings = {
+                        allowPaidRequests: document.getElementById('allow-paid-requests')?.checked,
+                        emailNotifications: document.getElementById('email-notifications')?.checked,
+                        autoUpgrade: document.getElementById('auto-upgrade')?.checked
+                    };
+                    
+                    window.saveUserSettings(settings);
+                    showToast('Einstellungen gespeichert!', 'success');
+                });
             }
-        };
+        }, 1000);
     });
 })();

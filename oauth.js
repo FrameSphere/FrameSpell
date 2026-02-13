@@ -63,10 +63,20 @@
     
     // Handle OAuth Callback
     window.handleOAuthCallback = function(token, userData) {
-        // Setze authToken und currentUser global
+        console.log('OAuth Callback:', { token, userData });
+        
+        // Setze authToken und currentUser ÜBERALL
         window.authToken = token;
         window.currentUser = userData;
         localStorage.setItem('authToken', token);
+        
+        // Force-setze die Variablen auch direkt (für app.js Scope)
+        try {
+            eval('authToken = "' + token.replace(/"/g, '\\"') + '";');
+            eval('currentUser = ' + JSON.stringify(userData) + ';');
+        } catch (e) {
+            console.log('Could not set via eval, using window only');
+        }
         
         // Close modals
         const loginModal = document.getElementById('login-modal');
