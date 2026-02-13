@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="dashboard-new.css">
     <link rel="stylesheet" href="sections.css">
     <link rel="stylesheet" href="plan-modal.css">
+    <link rel="stylesheet" href="oauth.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -718,6 +719,26 @@ curl -X POST http://localhost:8000/spellcheck \
                         <i class="fas fa-sign-in-alt"></i> Anmelden
                     </button>
                 </form>
+                
+                <div class="oauth-divider">
+                    <span>oder</span>
+                </div>
+                
+                <div class="oauth-buttons">
+                    <button class="oauth-btn oauth-github" id="oauth-github-login">
+                        <i class="fab fa-github"></i>
+                        <span>Mit GitHub anmelden</span>
+                    </button>
+                    <button class="oauth-btn oauth-google" id="oauth-google-login">
+                        <i class="fab fa-google"></i>
+                        <span>Mit Google anmelden</span>
+                    </button>
+                    <button class="oauth-btn oauth-framesphere" id="oauth-framesphere-login">
+                        <i class="fas fa-cube"></i>
+                        <span>Mit FrameSphere anmelden</span>
+                    </button>
+                </div>
+                
                 <div class="modal-footer">
                     <p>Noch kein Konto? <a href="#register" id="switch-to-register">Hier registrieren</a></p>
                 </div>
@@ -753,6 +774,26 @@ curl -X POST http://localhost:8000/spellcheck \
                         <i class="fas fa-user-plus"></i> Registrieren
                     </button>
                 </form>
+                
+                <div class="oauth-divider">
+                    <span>oder</span>
+                </div>
+                
+                <div class="oauth-buttons">
+                    <button class="oauth-btn oauth-github" id="oauth-github-register">
+                        <i class="fab fa-github"></i>
+                        <span>Mit GitHub registrieren</span>
+                    </button>
+                    <button class="oauth-btn oauth-google" id="oauth-google-register">
+                        <i class="fab fa-google"></i>
+                        <span>Mit Google registrieren</span>
+                    </button>
+                    <button class="oauth-btn oauth-framesphere" id="oauth-framesphere-register">
+                        <i class="fas fa-cube"></i>
+                        <span>Mit FrameSphere registrieren</span>
+                    </button>
+                </div>
+                
                 <div class="modal-footer">
                     <p>Bereits ein Konto? <a href="#login" id="switch-to-login">Hier anmelden</a></p>
                 </div>
@@ -1268,5 +1309,6 @@ curl -X POST http://localhost:8000/spellcheck \
     <script src="app.js?v=2.0"></script>
     <script src="dashboard-new.js?v=2.0"></script>
     <script src="plan-modal.js"></script>
+    <script src="oauth.js"></script>
 </body>
 </html>
