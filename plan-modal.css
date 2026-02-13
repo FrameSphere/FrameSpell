@@ -19,11 +19,11 @@
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #a0a0a0);
 }
 
 .plan-info-item i {
-    color: var(--primary);
+    color: var(--primary, #6366f1);
     font-size: 1.125rem;
 }
 
@@ -34,13 +34,13 @@
     padding: 0.75rem;
     background: rgba(99, 102, 241, 0.1);
     border-radius: 8px;
-    border-left: 3px solid var(--primary);
+    border-left: 3px solid var(--primary, #6366f1);
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #a0a0a0);
 }
 
 .billing-info-compact i {
-    color: var(--primary);
+    color: var(--primary, #6366f1);
     font-size: 1.125rem;
 }
 
@@ -62,7 +62,7 @@
 }
 
 .plan-modal-card:hover {
-    border-color: var(--primary);
+    border-color: var(--primary, #6366f1);
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
 }
@@ -92,19 +92,19 @@
     margin: 0 0 0.5rem 0;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--text-primary, #ffffff);
 }
 
 .plan-modal-price {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--primary);
+    color: var(--primary, #6366f1);
 }
 
 .plan-modal-price small {
     font-size: 1rem;
     font-weight: 400;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #a0a0a0);
 }
 
 .plan-modal-features {
@@ -120,11 +120,11 @@
     align-items: center;
     gap: 0.75rem;
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #a0a0a0);
 }
 
 .plan-modal-feature i {
-    color: var(--primary);
+    color: var(--primary, #6366f1);
     font-size: 1rem;
 }
 
