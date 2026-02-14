@@ -65,7 +65,7 @@
     window.handleOAuthCallback = function(token, userData) {
         console.log('OAuth Callback:', { token, userData });
         
-        // Setze authToken und currentUser ÜBERALL
+        // Setze authToken und currentUser wie beim normalen Login
         window.authToken = token;
         window.currentUser = userData;
         localStorage.setItem('authToken', token);
@@ -78,52 +78,42 @@
             console.log('Could not set via eval, using window only');
         }
         
-        // Close modals
-        const loginModal = document.getElementById('login-modal');
-        const registerModal = document.getElementById('register-modal');
-        if (loginModal) loginModal.classList.add('hidden');
-        if (registerModal) registerModal.classList.add('hidden');
+        // Close alle Modals
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.classList.add('hidden');
+        });
         
-        // Update UI
+        // Update UI wie beim normalen Login
         if (typeof updateUI === 'function') {
             updateUI();
         }
         
-        // Show Dashboard direkt auf Profil-Seite
-        const dashboardWrapper = document.getElementById('dashboard-wrapper');
-        const mainContent = document.querySelector('.main-content');
-        
-        if (dashboardWrapper && mainContent) {
-            mainContent.style.display = 'none';
-            dashboardWrapper.classList.remove('hidden');
-            dashboardWrapper.style.display = 'flex';
-            
-            // Zeige Profil-Seite
-            document.querySelectorAll('.dashboard-page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.querySelectorAll('.dashboard-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            const profilePage = document.getElementById('page-profile');
-            const profileTab = document.querySelector('[data-page="profile"]');
-            
-            if (profilePage) profilePage.classList.add('active');
-            if (profileTab) profileTab.classList.add('active');
-            
-            // Re-initialisiere Dashboard Event Handlers
-            if (typeof initDashboard === 'function') {
-                initDashboard();
+        // Verwende die GLEICHE Funktion wie beim normalen Login
+        // Warte kurz damit alle Event Listeners geladen sind
+        setTimeout(() => {
+            if (typeof showDashboard === 'function') {
+                showDashboard();
+            } else if (typeof openDashboardNew === 'function') {
+                openDashboardNew();
+            } else {
+                // Fallback: Manuell öffnen
+                const dashboardWrapper = document.getElementById('dashboard-wrapper');
+                const mainContent = document.querySelector('.main-content');
+                
+                if (dashboardWrapper && mainContent) {
+                    mainContent.style.display = 'none';
+                    dashboardWrapper.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Zeige Profil-Seite
+                    if (typeof switchToPage === 'function') {
+                        switchToPage('profile');
+                    }
+                }
             }
             
-            // Lade User-Daten ins Dashboard
-            if (typeof loadDashboardData === 'function') {
-                loadDashboardData();
-            }
-        }
-        
-        showToast('Erfolgreich mit GitHub angemeldet!', 'success');
+            showToast('Erfolgreich mit GitHub angemeldet!', 'success');
+        }, 100);
     };
     
     // Check if we're returning from OAuth
