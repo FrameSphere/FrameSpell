@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datenschutzerklärung - Brawl Stars Guess</title>
+    <meta name="description" content="Datenschutzerklärung und Informationen zur Datenverarbeitung">
+
+    <!--Google adSense-->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3654554314003005"
+    crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --bg-primary: #0f0f1e;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #252542;
+            --text-primary: #e4e4e7;
+            --text-secondary: #a1a1aa;
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #6366f1;
+            --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            --border-color: #2d2d44;
+            --shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .theme-icon {
+            font-size: 1.2em;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .legal-content {
+            padding: 50px 40px;
+        }
+
+        h1 {
+            color: var(--text-primary);
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            color: var(--text-primary);
+            font-size: 1.5em;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        strong {
+            color: var(--text-primary);
+        }
+
+        ul {
+            color: var(--text-secondary);
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            line-height: 1.8;
+        }
+
+        address {
+            font-style: normal;
+            line-height: 1.8;
+        }
+
+        a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--accent-secondary);
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 14px 32px;
+            background: var(--accent-gradient);
+            color: white;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .back-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+            text-decoration: none;
+        }
+
+        footer {
+            background: var(--bg-tertiary);
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            margin-top: 0;
+        }
+
+        .footer-links {
+            margin-bottom: 15px;
+        }
+
+        .footer-link {
+            color: var(--accent-primary);
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--accent-secondary);
+            text-decoration: underline;
+        }
+
+        .footer-separator {
+            color: var(--text-secondary);
+        }
+
+        .footer-copyright {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 10px 16px;
+                font-size: 0.85em;
+            }
+
+            .container {
+                margin-top: 50px;
+            }
+
+            .legal-content {
+                padding: 35px 25px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+
+            footer {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon">🌙</span>
+        <span class="theme-text">Dark Mode</span>
+    </button>
+
+    <div class="container">
+        <div class="legal-content">
+            <h1>Datenschutzerklärung</h1>
+            
+            <h2>1. Datenschutz auf einen Blick</h2>
+            <p><strong>Allgemeine Hinweise:</strong></p>
+            <p>
+                Diese Website verwendet keine Cookies für die Funktionalität und erhebt keine personenbezogenen Daten. 
+                Alle Test-Antworten und Einstellungen werden ausschließlich lokal in Ihrem Browser (localStorage) gespeichert 
+                und verlassen Ihr Gerät nicht.
+            </p>
+
+            <h2>2. Hosting</h2>
+            <p>
+                Diese Website wird gehostet bei:<br>
+                <address>
+                    Cloudflare<br>
+                    Rosental 7, c/o Mindspace<br>
+                    80331 München
+                </address>
+            </p>
+            <p>
+                Der Hoster erhebt in sogenannten Logfiles folgende Daten, die Ihr Browser automatisch übermittelt. 
+                Diese Daten werden ausschließlich zum sicheren Betrieb, zur Fehleranalyse und zur Verbesserung der 
+                Funktionalität der Website verwendet:
+            </p>
+            <ul>
+                <li>IP-Adresse</li>
+                <li>Adresse der vorher besuchten Website (Referrer)</li>
+                <li>Datum und Uhrzeit der Anfrage</li>
+                <li>Zeitzonendifferenz zur Greenwich Mean Time</li>
+                <li>Inhalt der Anforderung</li>
+                <li>HTTP-Statuscode</li>
+                <li>Übertragene Datenmenge</li>
+                <li>Website, von der die Anforderung kommt</li>
+                <li>Informationen zu Browser und Betriebssystem</li>
+            </ul>
+            <p>
+                Rechtsgrundlage für die Verarbeitung ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt 
+                in der Verbesserung, Stabilität, Funktionalität und Sicherheit der Website.
+            </p>
+
+            <h2>3. Lokale Datenspeicherung (localStorage)</h2>
+            <p>
+                Diese Website nutzt die localStorage-Technologie Ihres Browsers, um folgende Daten ausschließlich 
+                auf Ihrem Gerät zu speichern:
+            </p>
+            <ul>
+                <li>Ihre Test-Antworten während der Durchführung</li>
+                <li>Theme-Einstellung (Hell-/Dunkelmodus)</li>
+            </ul>
+            <p>
+                Diese Daten werden niemals an unsere Server oder Dritte übertragen. Sie können diese Daten jederzeit 
+                durch das Löschen Ihrer Browser-Daten entfernen.
+            </p>
+
+            <h2>4. Ihre Rechte</h2>
+            <p>
+                Da wir keine personenbezogenen Daten selbst erheben oder verarbeiten, fallen die meisten Datenschutzrechte 
+                nicht an. Sie haben jedoch jederzeit das Recht:
+            </p>
+            <ul>
+                <li>Ihre lokal gespeicherten Daten durch Löschen der Browser-Daten zu entfernen</li>
+                <li>Die Nutzung der Website einzustellen</li>
+                <li>Sich bei Fragen an uns zu wenden (Kontaktdaten im Impressum)</li>
+            </ul>
+
+            <h2>5. Cookies</h2>
+            <p>
+                Diese Website verwendet <strong>keine Cookies</strong>. Alle Daten werden ausschließlich im localStorage 
+                Ihres Browsers gespeichert.
+            </p>
+
+            <h2>6. SSL- bzw. TLS-Verschlüsselung</h2>
+            <p>
+                Diese Website nutzt aus Sicherheitsgründen eine SSL-/TLS-Verschlüsselung. Eine verschlüsselte Verbindung 
+                erkennen Sie daran, dass die Adresszeile des Browsers von „http://" auf „https://" wechselt und das 
+                Schloss-Symbol in der Browserzeile angezeigt wird.
+            </p>
+
+            <h2>7. Änderungen dieser Datenschutzerklärung</h2>
+            <p>
+                Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf anzupassen, damit sie stets den aktuellen 
+                rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen umzusetzen.
+            </p>
+
+            <p style="margin-top: 30px; font-size: 0.9rem; color: var(--text-secondary);">
+                Stand: Januar 2026
+            </p>
+
+            <a href="index.html" class="back-link">← Zurück zur Hauptseite</a>
+        </div>
+
+        <footer>
+            <div class="footer-links">
+                <a href="impressum.html" class="footer-link">Impressum</a>
+                <span class="footer-separator">·</span>
+                <a href="datenschutz.html" class="footer-link">Datenschutz</a>
+            </div>
+            <div class="footer-copyright">
+                © 2026 Brawl Stars Guess · powered by <a href="https://frame-sphere.vercel.app" class="footer-link">FrameSphere</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            const icon = document.querySelector('.theme-icon');
+            const text = document.querySelector('.theme-text');
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            if (newTheme === 'light') {
+                icon.textContent = '☀️';
+                text.textContent = 'Light Mode';
+            } else {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        // Load saved theme
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const html = document.documentElement;
+            const icon = document.querySelector('.theme-icon');
+            const text = document.querySelector('.theme-text');
+            
+            html.setAttribute('data-theme', savedTheme);
+            
+            if (savedTheme === 'light') {
+                icon.textContent = '☀️';
+                text.textContent = 'Light Mode';
+            }
+        });
+    </script>
+</body>
+</html>
