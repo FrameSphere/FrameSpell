@@ -1245,6 +1245,37 @@ function checkApiConnectivity() {
         .catch(() => {});
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const registerForm = document.getElementById('register-form');
+    const acceptTermsCheckbox = document.getElementById('accept-terms');
+    const registerSubmitBtn = document.getElementById('register-submit-btn');
+    
+    if (acceptTermsCheckbox && registerSubmitBtn) {
+        // Disable submit button initially
+        registerSubmitBtn.disabled = !acceptTermsCheckbox.checked;
+        
+        // Enable/disable submit button based on checkbox
+        acceptTermsCheckbox.addEventListener('change', () => {
+            registerSubmitBtn.disabled = !acceptTermsCheckbox.checked;
+        });
+    }
+    
+    // Add validation to form submit
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            if (!acceptTermsCheckbox.checked) {
+                e.preventDefault();
+                if (typeof showToast === 'function') {
+                    showToast('Bitte akzeptieren Sie die Nutzungsbedingungen', 'error');
+                } else {
+                    alert('Bitte akzeptieren Sie die Nutzungsbedingungen');
+                }
+                return false;
+            }
+        });
+    }
+});
+
 // Start the application
 document.addEventListener('DOMContentLoaded', () => {
     init();

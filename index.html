@@ -774,6 +774,13 @@ curl -X POST http://localhost:8000/spellcheck \
                         <label for="register-password-confirm">Passwort bestätigen:</label>
                         <input type="password" id="register-password-confirm" required>
                     </div>
+                        <!-- NEU: Terms Checkbox -->
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="accept-terms" required>
+                        <label for="accept-terms">
+                            Ich akzeptiere die <a href="nutzungsbedingungen.html" target="_blank">Nutzungsbedingungen</a>
+                        </label>
+                    </div>
                     <button type="submit" class="btn btn-primary btn-full">
                         <i class="fas fa-user-plus"></i> Registrieren
                     </button>
