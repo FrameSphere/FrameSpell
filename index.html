@@ -682,6 +682,26 @@ curl -X POST http://localhost:8000/spellcheck \
         </section>
     </main>
 
+    <!-- Latest Changelog Banner -->
+    <section id="latest-changelog" style="padding:2.5rem 0;background:linear-gradient(135deg,rgba(99,102,241,.07) 0%,rgba(139,92,246,.07) 100%);border-top:1px solid rgba(99,102,241,.15);border-bottom:1px solid rgba(99,102,241,.15);display:none" id="latest-changelog">
+        <div class="container">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;max-width:860px;margin:0 auto">
+                <div style="display:flex;align-items:center;gap:14px;min-width:0">
+                    <div style="flex-shrink:0;width:36px;height:36px;border-radius:50%;background:rgba(99,102,241,.2);border:1.5px solid rgba(99,102,241,.45);display:flex;align-items:center;justify-content:center;font-size:16px" id="lcl-icon">&#x1F4CB;</div>
+                    <div style="min-width:0">
+                        <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:3px">Neuestes Update</div>
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                            <span style="font-family:monospace;font-size:.75rem;font-weight:700;color:#a78bfa;background:rgba(99,102,241,.12);padding:.15rem .5rem;border-radius:4px" id="lcl-version"></span>
+                            <span style="font-size:.95rem;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px" id="lcl-title"></span>
+                        </div>
+                        <div style="font-size:.8rem;color:rgba(255,255,255,.4);margin-top:3px" id="lcl-date"></div>
+                    </div>
+                </div>
+                <a href="changelog.html" style="flex-shrink:0;display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.2rem;border-radius:8px;border:1px solid rgba(99,102,241,.5);color:#a78bfa;font-size:.85rem;font-weight:600;text-decoration:none;transition:background .2s" onmouseover="this.style.background='rgba(99,102,241,.15)'" onmouseout="this.style.background=''">Alle Updates <i class="fas fa-arrow-right" style="font-size:.75rem"></i></a>
+            </div>
+        </div>
+    </section>
+
         <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
@@ -854,6 +874,10 @@ curl -X POST http://localhost:8000/spellcheck \
                 <button class="dashboard-tab" data-page="usage">
                     <i class="fas fa-chart-bar"></i>
                     <span>Nutzung</span>
+                </button>
+                <button class="dashboard-tab" data-page="support">
+                    <i class="fas fa-life-ring"></i>
+                    <span>Support</span>
                 </button>
             </div>
             <div class="dashboard-user-info">
@@ -1222,6 +1246,94 @@ curl -X POST http://localhost:8000/spellcheck \
                     </div>
                 </div>
             </div>
+            <!-- SUPPORT PAGE -->
+            <div class="dashboard-page" id="page-support">
+                <div class="page-header">
+                    <h1><i class="fas fa-life-ring"></i> Support</h1>
+                    <p>Ticket erstellen oder bisherige Anfragen ansehen</p>
+                </div>
+                <div class="content-grid">
+
+                    <!-- Ticket Form -->
+                    <div class="content-card">
+                        <h2>Neues Ticket</h2>
+                        <div style="display:flex;flex-direction:column;gap:.85rem;margin-top:.5rem">
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px">Name (optional)</label>
+                                <input id="sp-name" type="text" maxlength="80" placeholder="Dein Name"
+                                    style="width:100%;box-sizing:border-box;background:var(--background);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;padding:10px 13px;outline:none;font-family:inherit;transition:border-color .15s"
+                                    onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px">E-Mail (optional)</label>
+                                <input id="sp-email" type="email" maxlength="120" placeholder="deine@email.de"
+                                    style="width:100%;box-sizing:border-box;background:var(--background);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;padding:10px 13px;outline:none;font-family:inherit;transition:border-color .15s"
+                                    onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px">Kategorie</label>
+                                <select id="sp-cat" style="width:100%;background:var(--background);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;padding:10px 13px;outline:none;font-family:inherit;transition:border-color .15s"
+                                    onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='var(--border)'">
+                                    <option value="bug">🐛 Fehler / Bug</option>
+                                    <option value="api">🔌 API-Problem</option>
+                                    <option value="billing">💳 Abrechnung / Zahlung</option>
+                                    <option value="feature">✨ Feature-Wunsch</option>
+                                    <option value="other">💬 Sonstiges</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px">Betreff *</label>
+                                <input id="sp-subject" type="text" maxlength="150" placeholder="Worum geht es?"
+                                    style="width:100%;box-sizing:border-box;background:var(--background);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;padding:10px 13px;outline:none;font-family:inherit;transition:border-color .15s"
+                                    onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='var(--border)'">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px">Nachricht *</label>
+                                <textarea id="sp-msg" maxlength="2000" rows="6" placeholder="Beschreibe dein Anliegen möglichst genau…"
+                                    style="width:100%;box-sizing:border-box;background:var(--background);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;padding:10px 13px;outline:none;font-family:inherit;resize:vertical;transition:border-color .15s"
+                                    onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+                            </div>
+                            <button class="btn btn-primary btn-full" id="sp-send-btn" onclick="dashboardSubmitTicket()">
+                                <i class="fas fa-paper-plane"></i> Ticket absenden
+                            </button>
+                            <div id="sp-feedback" style="font-size:12px;min-height:16px;text-align:center"></div>
+                        </div>
+                    </div>
+
+                    <!-- My Tickets -->
+                    <div class="content-card">
+                        <h2>Meine Tickets</h2>
+                        <div id="sp-tickets-list" style="display:flex;flex-direction:column;gap:.65rem;margin-top:.5rem">
+                            <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.875rem">Wird geladen…</div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ -->
+                    <div class="content-card full-width">
+                        <h2>Häufige Fragen</h2>
+                        <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem" id="sp-faq">
+                            <details style="background:var(--background);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;cursor:pointer">
+                                <summary style="font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;justify-content:space-between">Wie erhalte ich meinen API Key? <i class="fas fa-chevron-down" style="font-size:.75rem;color:var(--text-muted)"></i></summary>
+                                <p style="margin-top:.65rem;font-size:.85rem;color:var(--text-secondary);line-height:1.6">Nach der Registrierung findest du deinen API Key unter <strong>API Keys</strong> im Dashboard. Du kannst ihn dort jederzeit kopieren oder neu generieren.</p>
+                            </details>
+                            <details style="background:var(--background);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;cursor:pointer">
+                                <summary style="font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;justify-content:space-between">Was passiert wenn ich das Rate Limit überschreite? <i class="fas fa-chevron-down" style="font-size:.75rem;color:var(--text-muted)"></i></summary>
+                                <p style="margin-top:.65rem;font-size:.85rem;color:var(--text-secondary);line-height:1.6">Im Free-Plan sind 20 Anfragen/Minute kostenlos. Jede weitere Anfrage kostet €0.009, sofern du kostenpflichtige Anfragen in den Einstellungen aktiviert hast.</p>
+                            </details>
+                            <details style="background:var(--background);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;cursor:pointer">
+                                <summary style="font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;justify-content:space-between">Wie lange dauert die Antwortzeit der API? <i class="fas fa-chevron-down" style="font-size:.75rem;color:var(--text-muted)"></i></summary>
+                                <p style="margin-top:.65rem;font-size:.85rem;color:var(--text-secondary);line-height:1.6">Die Verarbeitungszeit liegt typischerweise unter 1000ms. Bei hoher Last kann es vereinzelt länger dauern. Das ML-Modell auf HuggingFace Spaces benötigt nach Inaktivität einen kurzen Warmup.</p>
+                            </details>
+                            <details style="background:var(--background);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;cursor:pointer">
+                                <summary style="font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;justify-content:space-between">Wie schnell wird mein Ticket beantwortet? <i class="fas fa-chevron-down" style="font-size:.75rem;color:var(--text-muted)"></i></summary>
+                                <p style="margin-top:.65rem;font-size:.85rem;color:var(--text-secondary);line-height:1.6">Wir versuchen alle Tickets innerhalb von 24–48 Stunden zu beantworten. Pro-Kunden erhalten bevorzugten Support.</p>
+                            </details>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -1302,6 +1414,111 @@ curl -X POST http://localhost:8000/spellcheck \
     </div>
 
     <script src="js/framespell-hq.js"></script>
+    <script>
+    // ── Changelog Banner ─────────────────────────────────────────────
+    (function () {
+      var HQ = 'https://webcontrol-hq-api.karol-paschek.workers.dev';
+      var TYPE_ICON = { feature:'\u2728', fix:'\uD83D\uDC1B', improvement:'\u26A1', security:'\uD83D\uDD12', breaking:'\uD83D\uDCA5' };
+      function fmtDate(iso) {
+        return new Date(iso).toLocaleDateString('de-DE', { day:'2-digit', month:'long', year:'numeric' });
+      }
+      fetch(HQ + '/api/changelog?site_id=framespell')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var pub = (Array.isArray(data) ? data : []).filter(function (e) { return e.published; });
+          if (!pub.length) return;
+          var e = pub[0];
+          document.getElementById('lcl-icon').textContent  = TYPE_ICON[e.type] || '\uD83D\uDCCB';
+          document.getElementById('lcl-version').textContent = e.version || '';
+          document.getElementById('lcl-title').textContent   = e.title   || '';
+          document.getElementById('lcl-date').textContent    = fmtDate(e.created_at);
+          document.getElementById('latest-changelog').style.display = '';
+        }).catch(function () {});
+    })();
+
+    // ── Dashboard Support Tab ────────────────────────────────────────
+    var HQ_SUPPORT = 'https://webcontrol-hq-api.karol-paschek.workers.dev';
+
+    // Load tickets from localStorage when Support tab opens
+    (function () {
+      // Hook into tab switching – wait for DOM ready
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-page="support"]');
+        if (btn) loadMyTickets();
+      });
+    })();
+
+    function loadMyTickets() {
+      var list = document.getElementById('sp-tickets-list');
+      var stored;
+      try { stored = JSON.parse(localStorage.getItem('fshq_tickets') || '[]'); } catch (ex) { stored = []; }
+      if (!stored.length) {
+        list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.875rem">Noch keine Tickets erstellt.</div>';
+        return;
+      }
+      list.innerHTML = stored.map(function (t) {
+        var d = new Date(t.ts).toLocaleDateString('de-DE', { day:'2-digit', month:'short', year:'numeric' });
+        return '<div style="background:var(--background);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem">'
+          + '<div>'
+          + '<div style="font-size:.75rem;font-family:monospace;color:#a78bfa;font-weight:700">#' + t.id + '</div>'
+          + '<div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">' + d + '</div>'
+          + '</div>'
+          + '<span style="font-size:.72rem;background:rgba(99,102,241,.15);color:#a78bfa;padding:.2rem .6rem;border-radius:4px;font-weight:700">Offen</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function dashboardSubmitTicket() {
+      var name    = (document.getElementById('sp-name').value    || '').trim();
+      var email   = (document.getElementById('sp-email').value   || '').trim();
+      var cat     = document.getElementById('sp-cat').value;
+      var subject = (document.getElementById('sp-subject').value || '').trim();
+      var msg     = (document.getElementById('sp-msg').value     || '').trim();
+      var fb      = document.getElementById('sp-feedback');
+      var btn     = document.getElementById('sp-send-btn');
+
+      if (!subject) { fb.style.color = '#f87171'; fb.textContent = 'Bitte einen Betreff angeben.'; return; }
+      if (msg.length < 10) { fb.style.color = '#f87171'; fb.textContent = 'Nachricht zu kurz (mind. 10 Zeichen).'; return; }
+
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wird gesendet…'; fb.textContent = '';
+
+      fetch(HQ_SUPPORT + '/api/support/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        body: JSON.stringify({
+          site_id: 'framespell',
+          name: name || 'Anonym',
+          email: email || null,
+          subject: '[' + cat + '] ' + subject,
+          message: msg
+        })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.success) {
+          // Save to localStorage
+          try {
+            var saved = JSON.parse(localStorage.getItem('fshq_tickets') || '[]');
+            saved.unshift({ id: data.ticket_id, token: data.user_token, ts: Date.now() });
+            localStorage.setItem('fshq_tickets', JSON.stringify(saved.slice(0, 20)));
+          } catch (ex) {}
+          fb.style.color = '#4ade80';
+          fb.textContent = '\u2713 Ticket #' + data.ticket_id + ' erstellt! Wir melden uns bald.';
+          ['sp-name','sp-email','sp-subject','sp-msg'].forEach(function (id) { document.getElementById(id).value = ''; });
+          loadMyTickets();
+        } else { throw new Error(); }
+      })
+      .catch(function () {
+        fb.style.color = '#f87171';
+        fb.textContent = 'Fehler beim Senden \u2013 bitte sp\u00E4ter erneut versuchen.';
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Ticket absenden';
+      });
+    }
+    </script>
     <script src="js/config.js"></script>
     <script src="js/app.js?v=2.0"></script>
     <script src="js/dashboard-new.js?v=2.0"></script>
