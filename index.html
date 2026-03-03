@@ -50,6 +50,8 @@
                 <a href="#pricing" class="nav-link">Preise</a>
                 <a href="#docs" class="nav-link">Dokumentation</a>
                 <a href="#demo" class="nav-link">Demo</a>
+                <a href="changelog.html" class="nav-link">Changelog</a>
+                <a href="blog.html" class="nav-link">Blog</a>
                 <div class="nav-auth" id="nav-auth">
                     <button class="btn btn-outline" id="login-btn">Anmelden</button>
                     <button class="btn btn-primary" id="register-btn">Registrieren</button>
@@ -623,7 +625,7 @@ curl -X POST http://localhost:8000/spellcheck \
                 <div class="docs-cta">
                     <h3>Brauchen Sie Hilfe?</h3>
                     <p>Kontaktieren Sie unser Support-Team für weitere Unterstützung</p>
-                    <button class="btn btn-primary">Support kontaktieren</button>
+                    <button class="btn btn-primary" onclick="openFrameSpellSupport()">Support kontaktieren</button>
                 </div>
             </div>
         </section>
@@ -684,15 +686,19 @@ curl -X POST http://localhost:8000/spellcheck \
         <div class="container">
             <div class="footer-content">
                 <div class="footer-links">
-                    <a href="/docs.html">Docs</a>
+                    <a href="changelog.html">Changelog</a>
                     <span class="footer-divider">•</span>
-                    <a href="/impressum.html">Impressum</a>
+                    <a href="blog.html">Blog</a>
                     <span class="footer-divider">•</span>
-                    <a href="/datenschutz.html">Datenschutz</a>
+                    <a href="#" onclick="event.preventDefault();openFrameSpellSupport()">Support</a>
                     <span class="footer-divider">•</span>
-                    <a href="/nutzungsbedingungen.html">Nutzungsbedingungen</a>
+                    <a href="docs.html">Docs</a>
                     <span class="footer-divider">•</span>
-                    <a href="https://github.com/FrameSphere/FrameSpell">GitHub</a>
+                    <a href="impressum.html">Impressum</a>
+                    <span class="footer-divider">•</span>
+                    <a href="datenschutz.html">Datenschutz</a>
+                    <span class="footer-divider">•</span>
+                    <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
                 </div>
                 <div class="footer-powered">
                     © 2026 FrameSpell. Powered by <a href="https://frame-sphere.vercel.app/" target="_blank" rel="noopener">FrameSphere</a>
@@ -1295,6 +1301,7 @@ curl -X POST http://localhost:8000/spellcheck \
         </div>
     </div>
 
+    <script src="js/framespell-hq.js"></script>
     <script src="js/config.js"></script>
     <script src="js/app.js?v=2.0"></script>
     <script src="js/dashboard-new.js?v=2.0"></script>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changelog – FrameSpell Rechtschreibe API</title>
+  <meta name="description" content="Alle Updates, Bugfixes und neuen Features der FrameSpell Rechtschreibe API im Überblick.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ── Page Layout ── */
+    .cl-hero {
+      padding: 7rem 0 3rem;
+      text-align: center;
+      background: radial-gradient(ellipse at top, rgba(99,102,241,.12) 0%, transparent 65%);
+    }
+    .cl-hero h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: .75rem; }
+    .cl-hero p  { color: var(--text-secondary); font-size: 1.1rem; max-width: 520px; margin: 0 auto; }
+
+    /* ── Filter Bar ── */
+    .cl-filter {
+      display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center;
+      padding: 2rem 1.5rem 0;
+    }
+    .cl-filter-btn {
+      padding: .45rem 1.1rem; border-radius: 2rem; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-secondary); font-size: .8rem;
+      font-weight: 600; cursor: pointer; transition: all .2s; font-family: inherit;
+    }
+    .cl-filter-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+    .cl-filter-btn.active { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+
+    /* ── Timeline ── */
+    .cl-timeline {
+      max-width: 760px; margin: 3rem auto 5rem; padding: 0 1.5rem;
+      display: flex; flex-direction: column; gap: 0;
+    }
+
+    /* Vertical line */
+    .cl-timeline::before {
+      content: ''; position: absolute; left: calc(1.5rem + 18px); top: 0; bottom: 0;
+      width: 2px; background: rgba(99,102,241,.18); pointer-events: none;
+    }
+    .cl-timeline { position: relative; }
+
+    .cl-entry {
+      display: flex; gap: 1.25rem; padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      animation: fadeIn .4s ease both;
+    }
+    .cl-entry:last-child { border-bottom: none; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+    /* Icon column */
+    .cl-icon {
+      flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; border: 2px solid transparent; position: relative; z-index: 1;
+    }
+    .cl-icon.feature     { background: rgba(99,102,241,.15); border-color: rgba(99,102,241,.4); }
+    .cl-icon.fix         { background: rgba(239,68,68,.12);  border-color: rgba(239,68,68,.35); }
+    .cl-icon.improvement { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.35); }
+    .cl-icon.security    { background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.35); }
+    .cl-icon.breaking    { background: rgba(249,115,22,.12); border-color: rgba(249,115,22,.35); }
+    .cl-icon.other       { background: rgba(148,163,184,.1); border-color: rgba(148,163,184,.3); }
+
+    /* Text column */
+    .cl-body { flex: 1; min-width: 0; }
+    .cl-meta {
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: .35rem;
+    }
+    .cl-version {
+      font-family: 'Courier New', monospace; font-size: .8rem; font-weight: 700;
+      color: #a78bfa; background: rgba(99,102,241,.12);
+      padding: .2rem .6rem; border-radius: 5px;
+    }
+    .cl-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+    .cl-date  { font-size: .75rem; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+    .cl-desc  { font-size: .9rem; color: var(--text-secondary); line-height: 1.6; margin-top: .3rem; }
+    .cl-type-badge {
+      font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+      padding: .15rem .55rem; border-radius: 4px;
+    }
+    .badge-feature     { background: rgba(99,102,241,.18); color: #a78bfa; }
+    .badge-fix         { background: rgba(239,68,68,.15);  color: #f87171; }
+    .badge-improvement { background: rgba(245,158,11,.15); color: #fbbf24; }
+    .badge-security    { background: rgba(16,185,129,.15); color: #34d399; }
+    .badge-breaking    { background: rgba(249,115,22,.15); color: #fb923c; }
+    .badge-other       { background: rgba(148,163,184,.12);color: #94a3b8; }
+
+    /* States */
+    .cl-empty, .cl-loading, .cl-error {
+      text-align: center; padding: 5rem 1rem;
+      color: var(--text-muted); font-size: .95rem;
+    }
+    .cl-empty .emoji, .cl-loading .emoji, .cl-error .emoji {
+      font-size: 3rem; display: block; margin-bottom: 1rem;
+    }
+    .cl-spinner {
+      width: 32px; height: 32px; border: 3px solid rgba(99,102,241,.2);
+      border-top-color: #6366f1; border-radius: 50%; margin: 0 auto 1rem;
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar (reuse from index) -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo" style="text-decoration:none;color:inherit">
+        <i class="fas fa-spell-check"></i>
+        <span>Rechtschreibe API</span>
+      </a>
+      <div class="nav-menu">
+        <a href="index.html#home"    class="nav-link">Home</a>
+        <a href="index.html#pricing" class="nav-link">Preise</a>
+        <a href="index.html#docs"    class="nav-link">Dokumentation</a>
+        <a href="index.html#demo"    class="nav-link">Demo</a>
+        <a href="changelog.html"     class="nav-link active">Changelog</a>
+        <a href="blog.html"          class="nav-link">Blog</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="cl-hero">
+    <div class="container">
+      <h1><span class="gradient-text">Changelog</span></h1>
+      <p>Alle Verbesserungen, Bugfixes und neuen Features – transparent und nachvollziehbar.</p>
+    </div>
+  </section>
+
+  <!-- Filter -->
+  <div class="cl-filter" id="cl-filter">
+    <button class="cl-filter-btn active" data-type="all">Alle</button>
+    <button class="cl-filter-btn" data-type="feature">&#x2728; Feature</button>
+    <button class="cl-filter-btn" data-type="fix">&#x1F41B; Bugfix</button>
+    <button class="cl-filter-btn" data-type="improvement">&#x26A1; Verbesserung</button>
+    <button class="cl-filter-btn" data-type="security">&#x1F512; Security</button>
+    <button class="cl-filter-btn" data-type="breaking">&#x1F4A5; Breaking</button>
+  </div>
+
+  <!-- Timeline -->
+  <div class="cl-timeline" id="cl-timeline">
+    <div class="cl-loading">
+      <div class="cl-spinner"></div>
+      Changelog wird geladen&hellip;
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="changelog.html">Changelog</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="blog.html">Blog</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="#" onclick="event.preventDefault();openFrameSpellSupport()">Support</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="docs.html">Docs</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="impressum.html">Impressum</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="datenschutz.html">Datenschutz</a>
+        </div>
+        <div class="footer-powered">
+          &copy; 2026 FrameSpell. Powered by
+          <a href="https://frame-sphere.vercel.app/" target="_blank" rel="noopener">FrameSphere</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/framespell-hq.js"></script>
+  <script>
+  (function () {
+    var HQ   = 'https://webcontrol-hq-api.karol-paschek.workers.dev';
+    var SITE = 'framespell';
+
+    var TYPE_META = {
+      feature:     { icon: '&#x2728;', cls: 'feature',     badge: 'badge-feature',     label: 'Feature' },
+      fix:         { icon: '&#x1F41B;',cls: 'fix',         badge: 'badge-fix',         label: 'Bugfix' },
+      improvement: { icon: '&#x26A1;', cls: 'improvement', badge: 'badge-improvement', label: 'Verbesserung' },
+      security:    { icon: '&#x1F512;',cls: 'security',    badge: 'badge-security',    label: 'Security' },
+      breaking:    { icon: '&#x1F4A5;',cls: 'breaking',    badge: 'badge-breaking',    label: 'Breaking' }
+    };
+
+    function fmtDate(iso) {
+      var d = new Date(iso);
+      return d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+
+    function renderEntries(entries) {
+      var tl = document.getElementById('cl-timeline');
+      if (!entries.length) {
+        tl.innerHTML = '<div class="cl-empty"><span class="emoji">&#x1F4DC;</span>Noch keine Changelog-Eintr&auml;ge vorhanden.</div>';
+        return;
+      }
+      tl.innerHTML = entries.map(function (e) {
+        var m = TYPE_META[e.type] || { icon: '&#x1F4CB;', cls: 'other', badge: 'badge-other', label: e.type || 'Update' };
+        return [
+          '<div class="cl-entry" data-type="' + (e.type || 'other') + '">',
+          '  <div class="cl-icon ' + m.cls + '">' + m.icon + '</div>',
+          '  <div class="cl-body">',
+          '    <div class="cl-meta">',
+          '      <span class="cl-version">' + (e.version || '') + '</span>',
+          '      <span class="cl-type-badge ' + m.badge + '">' + m.label + '</span>',
+          '      <span class="cl-title">' + escHtml(e.title) + '</span>',
+          '      <span class="cl-date">' + fmtDate(e.created_at) + '</span>',
+          '    </div>',
+          e.description ? '<div class="cl-desc">' + escHtml(e.description) + '</div>' : '',
+          '  </div>',
+          '</div>'
+        ].join('\n');
+      }).join('');
+    }
+
+    function escHtml(s) {
+      return String(s || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    // Filter
+    var activeFilter = 'all';
+    document.getElementById('cl-filter').addEventListener('click', function (e) {
+      var btn = e.target.closest('.cl-filter-btn');
+      if (!btn) return;
+      document.querySelectorAll('.cl-filter-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      activeFilter = btn.dataset.type;
+      document.querySelectorAll('.cl-entry').forEach(function (el) {
+        el.style.display = (activeFilter === 'all' || el.dataset.type === activeFilter) ? '' : 'none';
+      });
+    });
+
+    // Fetch
+    fetch(HQ + '/api/changelog?site_id=' + SITE)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var pub = (Array.isArray(data) ? data : []).filter(function (e) { return e.published; });
+        renderEntries(pub);
+      })
+      .catch(function () {
+        document.getElementById('cl-timeline').innerHTML =
+          '<div class="cl-error"><span class="emoji">&#x26A0;&#xFE0F;</span>Changelog konnte nicht geladen werden.</div>';
+      });
+  })();
+  </script>
+</body>
+</html>

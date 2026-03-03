@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog – FrameSpell Rechtschreibe API</title>
+  <meta name="description" content="News, Tutorials und Tipps rund um die FrameSpell Rechtschreibe API.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ── Hero ── */
+    .bl-hero {
+      padding: 7rem 0 3rem; text-align: center;
+      background: radial-gradient(ellipse at top, rgba(139,92,246,.1) 0%, transparent 65%);
+    }
+    .bl-hero h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: .75rem; }
+    .bl-hero p  { color: var(--text-secondary); font-size: 1.1rem; max-width: 520px; margin: 0 auto; }
+
+    /* ── Tag Filter ── */
+    .bl-tags {
+      display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center;
+      padding: 2rem 1.5rem 0;
+    }
+    .bl-tag-btn {
+      padding: .4rem 1rem; border-radius: 2rem; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-secondary); font-size: .78rem;
+      font-weight: 600; cursor: pointer; transition: all .2s; font-family: inherit;
+    }
+    .bl-tag-btn:hover  { border-color: #8b5cf6; color: #a78bfa; }
+    .bl-tag-btn.active { background: linear-gradient(135deg,#6366f1,#8b5cf6); border-color: transparent; color: #fff; }
+
+    /* ── Grid ── */
+    .bl-section { padding: 3rem 0 6rem; }
+    .bl-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.75rem; max-width: 1100px; margin: 0 auto; padding: 0 1.5rem;
+    }
+
+    /* ── Card ── */
+    .bl-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; transition: transform .2s, box-shadow .2s, border-color .2s;
+      display: flex; flex-direction: column; cursor: pointer;
+    }
+    .bl-card:hover {
+      transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,.45);
+      border-color: rgba(99,102,241,.45);
+    }
+
+    /* Accent bar */
+    .bl-card-accent { height: 3px; background: linear-gradient(90deg,#6366f1,#8b5cf6); }
+
+    .bl-card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; gap: .65rem; }
+
+    .bl-card-tag {
+      display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; padding: .2rem .65rem; border-radius: 4px;
+      background: rgba(99,102,241,.15); color: #a78bfa; width: fit-content;
+    }
+    .bl-card-title {
+      font-size: 1.1rem; font-weight: 700; color: var(--text-primary); line-height: 1.3;
+    }
+    .bl-card-excerpt {
+      font-size: .88rem; color: var(--text-secondary); line-height: 1.6; flex: 1;
+    }
+    .bl-card-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .75rem; color: var(--text-muted); padding-top: .75rem;
+      border-top: 1px solid rgba(255,255,255,.06); margin-top: auto;
+    }
+    .bl-card-author { display: flex; align-items: center; gap: .5rem; }
+    .bl-card-avatar {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: linear-gradient(135deg,#6366f1,#8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #fff;
+    }
+    .bl-read-more {
+      color: #a78bfa; font-size: .78rem; font-weight: 600;
+      display: flex; align-items: center; gap: .3rem;
+    }
+
+    /* ── Post Modal / Overlay ── */
+    #bl-post-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9998;
+      background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
+      align-items: flex-start; justify-content: center;
+      overflow-y: auto; padding: 2rem 1rem;
+    }
+    #bl-post-overlay.open { display: flex; }
+    #bl-post-box {
+      background: #0f172a; border: 1px solid rgba(255,255,255,.1);
+      border-radius: 20px; width: 100%; max-width: 760px; padding: 2.5rem;
+      position: relative; margin: auto;
+    }
+    #bl-post-box .post-close {
+      position: absolute; top: 1.25rem; right: 1.5rem;
+      background: none; border: none; color: rgba(255,255,255,.4);
+      font-size: 26px; cursor: pointer; line-height: 1; padding: 4px 8px;
+      border-radius: 6px; transition: color .15s, background .15s; font-family: inherit;
+    }
+    #bl-post-box .post-close:hover { color: #f8fafc; background: rgba(255,255,255,.08); }
+    #bl-post-box .post-tag {
+      display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; padding: .22rem .7rem; border-radius: 4px;
+      background: rgba(99,102,241,.15); color: #a78bfa; margin-bottom: 1rem;
+    }
+    #bl-post-box h2 {
+      font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; color: #f8fafc;
+      margin-bottom: .75rem; line-height: 1.25;
+    }
+    #bl-post-box .post-meta {
+      font-size: .8rem; color: rgba(255,255,255,.4); margin-bottom: 2rem;
+      padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,.08);
+      display: flex; gap: 1rem; flex-wrap: wrap;
+    }
+    #bl-post-box .post-content {
+      font-size: .97rem; color: rgba(255,255,255,.78); line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    /* States */
+    .bl-empty, .bl-loading, .bl-error {
+      grid-column: 1/-1; text-align: center; padding: 5rem 1rem;
+      color: var(--text-muted); font-size: .95rem;
+    }
+    .bl-spinner {
+      width: 32px; height: 32px; border: 3px solid rgba(139,92,246,.2);
+      border-top-color: #8b5cf6; border-radius: 50%; margin: 0 auto 1rem;
+      animation: spinbl .9s linear infinite;
+    }
+    @keyframes spinbl { to { transform: rotate(360deg); } }
+
+    .fade-in { animation: fadeInBl .35s ease both; }
+    @keyframes fadeInBl { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo" style="text-decoration:none;color:inherit">
+        <i class="fas fa-spell-check"></i>
+        <span>Rechtschreibe API</span>
+      </a>
+      <div class="nav-menu">
+        <a href="index.html#home"    class="nav-link">Home</a>
+        <a href="index.html#pricing" class="nav-link">Preise</a>
+        <a href="index.html#docs"    class="nav-link">Dokumentation</a>
+        <a href="index.html#demo"    class="nav-link">Demo</a>
+        <a href="changelog.html"     class="nav-link">Changelog</a>
+        <a href="blog.html"          class="nav-link active">Blog</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="bl-hero">
+    <div class="container">
+      <h1><span class="gradient-text">Blog</span></h1>
+      <p>News, Tutorials und Einblicke rund um KI-gestützte Rechtschreibprüfung und die FrameSpell API.</p>
+    </div>
+  </section>
+
+  <!-- Tag filter (populated dynamically) -->
+  <div class="bl-tags" id="bl-tags">
+    <button class="bl-tag-btn active" data-tag="all">Alle Beiträge</button>
+  </div>
+
+  <!-- Blog grid -->
+  <section class="bl-section">
+    <div class="bl-grid" id="bl-grid">
+      <div class="bl-loading">
+        <div class="bl-spinner"></div>
+        Blog-Beitr&auml;ge werden geladen&hellip;
+      </div>
+    </div>
+  </section>
+
+  <!-- Post detail overlay -->
+  <div id="bl-post-overlay">
+    <div id="bl-post-box">
+      <button class="post-close" id="bl-post-close">&times;</button>
+      <div class="post-tag"  id="bpd-tag"></div>
+      <h2 id="bpd-title"></h2>
+      <div class="post-meta" id="bpd-meta"></div>
+      <div class="post-content" id="bpd-content"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="changelog.html">Changelog</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="blog.html">Blog</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="#" onclick="event.preventDefault();openFrameSpellSupport()">Support</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="docs.html">Docs</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="impressum.html">Impressum</a>
+          <span class="footer-divider">&bull;</span>
+          <a href="datenschutz.html">Datenschutz</a>
+        </div>
+        <div class="footer-powered">
+          &copy; 2026 FrameSpell. Powered by
+          <a href="https://frame-sphere.vercel.app/" target="_blank" rel="noopener">FrameSphere</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/framespell-hq.js"></script>
+  <script>
+  (function () {
+    var HQ   = 'https://webcontrol-hq-api.karol-paschek.workers.dev';
+    var SITE = 'framespell';
+    var allPosts = [];
+    var activeTag = 'all';
+
+    function esc(s) {
+      return String(s || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    function fmtDate(iso) {
+      return new Date(iso).toLocaleDateString('de-DE', { day:'2-digit', month:'long', year:'numeric' });
+    }
+
+    function initials(name) {
+      return (name || 'FS').split(' ').map(function(w){ return w[0]; }).join('').slice(0,2).toUpperCase();
+    }
+
+    function renderGrid(posts) {
+      var grid = document.getElementById('bl-grid');
+      if (!posts.length) {
+        grid.innerHTML = '<div class="bl-empty">&#x1F4DD; Noch keine Blog-Beitr&auml;ge vorhanden.</div>';
+        return;
+      }
+      grid.innerHTML = posts.map(function (p, i) {
+        var tag = (p.tags && p.tags[0]) || (p.category) || 'Allgemein';
+        return [
+          '<div class="bl-card fade-in" style="animation-delay:' + (i * 0.06) + 's" data-id="' + p.id + '">',
+          '  <div class="bl-card-accent"></div>',
+          '  <div class="bl-card-body">',
+          '    <span class="bl-card-tag">' + esc(tag) + '</span>',
+          '    <div class="bl-card-title">' + esc(p.title) + '</div>',
+          p.excerpt ? '    <div class="bl-card-excerpt">' + esc(p.excerpt) + '</div>' : '',
+          '    <div class="bl-card-meta">',
+          '      <div class="bl-card-author">',
+          '        <div class="bl-card-avatar">' + initials(p.author) + '</div>',
+          '        <span>' + esc(p.author || 'FrameSpell Team') + '</span>',
+          '      </div>',
+          '      <span>' + fmtDate(p.created_at) + '</span>',
+          '      <span class="bl-read-more"><i class="fas fa-arrow-right"></i></span>',
+          '    </div>',
+          '  </div>',
+          '</div>'
+        ].join('\n');
+      }).join('');
+
+      // Click → open detail
+      document.querySelectorAll('.bl-card').forEach(function (card) {
+        card.addEventListener('click', function () {
+          var id = parseInt(card.dataset.id);
+          var post = allPosts.find(function (p) { return p.id === id; });
+          if (post) openPost(post);
+        });
+      });
+    }
+
+    function buildTagFilter(posts) {
+      var tags = ['all'];
+      posts.forEach(function (p) {
+        var t = (p.tags && p.tags[0]) || p.category || 'Allgemein';
+        if (tags.indexOf(t) < 0) tags.push(t);
+      });
+      var bar = document.getElementById('bl-tags');
+      bar.innerHTML = tags.map(function (t) {
+        return '<button class="bl-tag-btn' + (t === 'all' ? ' active' : '') + '" data-tag="' + esc(t) + '">' +
+          (t === 'all' ? 'Alle Beitr&auml;ge' : esc(t)) + '</button>';
+      }).join('');
+      bar.addEventListener('click', function (e) {
+        var btn = e.target.closest('.bl-tag-btn');
+        if (!btn) return;
+        document.querySelectorAll('.bl-tag-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        activeTag = btn.dataset.tag;
+        var filtered = activeTag === 'all' ? allPosts : allPosts.filter(function (p) {
+          var t = (p.tags && p.tags[0]) || p.category || 'Allgemein';
+          return t === activeTag;
+        });
+        renderGrid(filtered);
+      });
+    }
+
+    function openPost(post) {
+      var tag = (post.tags && post.tags[0]) || post.category || 'Allgemein';
+      document.getElementById('bpd-tag').textContent = tag;
+      document.getElementById('bpd-title').textContent = post.title || '';
+      document.getElementById('bpd-meta').textContent =
+        fmtDate(post.created_at) + (post.author ? '  ·  ' + post.author : '');
+      document.getElementById('bpd-content').textContent = post.content || post.excerpt || '';
+      document.getElementById('bl-post-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePost() {
+      document.getElementById('bl-post-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('bl-post-close').addEventListener('click', closePost);
+    document.getElementById('bl-post-overlay').addEventListener('click', function (e) {
+      if (e.target === this) closePost();
+    });
+
+    // Fetch
+    fetch(HQ + '/api/blog?site_id=' + SITE)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        allPosts = (Array.isArray(data) ? data : []).filter(function (p) {
+          return p.status === 'published';
+        });
+        buildTagFilter(allPosts);
+        renderGrid(allPosts);
+      })
+      .catch(function () {
+        document.getElementById('bl-grid').innerHTML =
+          '<div class="bl-error">&#x26A0;&#xFE0F; Blog konnte nicht geladen werden.</div>';
+      });
+  })();
+  </script>
+</body>
+</html>
