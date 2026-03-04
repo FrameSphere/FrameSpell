@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spellcheck API Use Cases – SaaS, CMS, AI, EdTech & mehr | FrameSpell</title>
+  <meta name="description" content="Wie SaaS-Produkte, KI-Assistenten, CMS-Systeme, E-Commerce-Shops und EdTech-Plattformen eine Rechtschreibprüfung API einsetzen. Praxisnahe Use Cases mit Code.">
+  <meta name="keywords" content="Spellcheck API Use Cases, Rechtschreibprüfung SaaS, KI Textkorrektur Anwendungsfälle, Spellcheck API CMS, Chatbot Rechtschreibung, EdTech Spellcheck, E-Commerce Textkorrektur API">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://framespell.pages.dev/guide-anwendungsfaelle.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://framespell.pages.dev/guide-anwendungsfaelle.html">
+  <meta property="og:title" content="Spellcheck API Use Cases – SaaS, CMS, AI, EdTech & mehr">
+  <meta property="og:description" content="Praxisnahe Use Cases: Wie Entwickler eine Rechtschreibprüfung API in echten Produkten einsetzen.">
+  <meta property="og:image" content="https://framespell.pages.dev/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    .guide-hero {
+      padding: 7rem 0 3.5rem;
+      background: radial-gradient(ellipse at top right, rgba(139,92,246,.13) 0%, transparent 60%);
+    }
+    .guide-hero .breadcrumb { font-size:.8rem; color:var(--text-muted); margin-bottom:1rem; }
+    .guide-hero .breadcrumb a { color:#6366f1; text-decoration:none; }
+    .guide-hero h1 { font-size:clamp(1.9rem,4vw,2.8rem); line-height:1.2; margin-bottom:.85rem; }
+    .guide-hero .meta { display:flex; gap:1.5rem; flex-wrap:wrap; font-size:.82rem; color:var(--text-muted); margin-bottom:1rem; }
+    .guide-hero .meta span { display:flex; align-items:center; gap:.35rem; }
+    .guide-hero .lead { font-size:1.1rem; color:var(--text-secondary); line-height:1.75; max-width:740px; }
+
+    .guide-body { padding:3rem 0 6rem; }
+    .guide-layout { display:grid; grid-template-columns:1fr 260px; gap:3rem; max-width:1100px; margin:0 auto; }
+    @media(max-width:900px){.guide-layout{grid-template-columns:1fr;}.guide-toc{display:none;}}
+
+    .guide-toc { position:sticky; top:90px; align-self:start; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.25rem; }
+    .guide-toc h3 { font-size:.8rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--text-muted); margin-bottom:.85rem; }
+    .guide-toc a { display:block; font-size:.85rem; color:var(--text-secondary); text-decoration:none; padding:.3rem 0; border-left:2px solid transparent; padding-left:.7rem; transition:color .15s,border-color .15s; }
+    .guide-toc a:hover { color:#a78bfa; border-left-color:#6366f1; }
+    .guide-toc .toc-sub { padding-left:1.5rem; font-size:.8rem; }
+
+    .guide-article h2 { font-size:1.55rem; font-weight:700; margin:2.5rem 0 .9rem; padding-top:.5rem; border-top:1px solid var(--border); scroll-margin-top:100px; }
+    .guide-article h2:first-of-type { border-top:none; margin-top:0; }
+    .guide-article h3 { font-size:1.1rem; font-weight:700; margin:1.5rem 0 .6rem; color:#a78bfa; scroll-margin-top:100px; }
+    .guide-article p { color:var(--text-secondary); line-height:1.8; margin-bottom:1rem; }
+    .guide-article ul,
+    .guide-article ol { color:var(--text-secondary); padding-left:1.4rem; margin-bottom:1rem; line-height:1.9; }
+
+    .guide-article pre { background:#0d1524; border:1px solid var(--border); border-radius:10px; padding:1.1rem 1.25rem; overflow-x:auto; margin:1rem 0 1.5rem; font-size:.83rem; line-height:1.65; color:#e2e8f0; position:relative; }
+    .guide-article code { background:rgba(99,102,241,.12); color:#a78bfa; padding:.15rem .4rem; border-radius:4px; font-size:.9em; }
+    .guide-article pre code { background:none; color:inherit; padding:0; font-size:inherit; }
+    .code-block { position:relative; }
+    .code-label { position:absolute; top:.65rem; right:.75rem; font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); background:rgba(255,255,255,.05); padding:.2rem .5rem; border-radius:4px; }
+
+    .callout { background:rgba(99,102,241,.08); border-left:3px solid #6366f1; border-radius:0 8px 8px 0; padding:1rem 1.2rem; margin:1.25rem 0; font-size:.9rem; color:var(--text-secondary); }
+    .callout.success { background:rgba(16,185,129,.08); border-left-color:#10b981; }
+    .callout strong { color:var(--text-primary); }
+
+    .guide-article table { width:100%; border-collapse:collapse; margin:1rem 0 1.5rem; font-size:.875rem; }
+    .guide-article th { background:rgba(99,102,241,.08); text-align:left; padding:.7rem 1rem; border:1px solid var(--border); color:#a78bfa; font-weight:700; }
+    .guide-article td { padding:.65rem 1rem; border:1px solid var(--border); color:var(--text-secondary); vertical-align:top; }
+    .guide-article tr:nth-child(even) td { background:rgba(255,255,255,.02); }
+
+    /* Use-case cards */
+    .uc-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.75rem; margin-bottom: 2.5rem; position: relative; overflow: hidden;
+    }
+    .uc-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    }
+    .uc-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .uc-icon {
+      width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+      background: rgba(99,102,241,.15); display: flex; align-items: center;
+      justify-content: center; font-size: 1.4rem;
+    }
+    .uc-header h3 { font-size: 1.2rem; font-weight: 700; margin: 0; color: var(--text-primary); }
+    .uc-header .uc-badge { font-size: .72rem; font-weight: 700; padding: .2rem .6rem; border-radius: 4px; }
+    .badge-free { background: rgba(16,185,129,.15); color: #10b981; }
+    .badge-pro  { background: rgba(99,102,241,.15); color: #a78bfa; }
+    .badge-ent  { background: rgba(245,158,11,.15);  color: #f59e0b; }
+
+    .metric-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .metric { text-align: center; background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 8px; padding: .75rem 1rem; min-width: 100px; }
+    .metric .val { font-size: 1.4rem; font-weight: 800; background: var(--gradient-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .metric .lbl { font-size: .72rem; color: var(--text-muted); margin-top: .15rem; }
+
+    .guide-nav { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-top:3rem; padding-top:2rem; border-top:1px solid var(--border); }
+    .guide-nav a { flex:1; min-width:200px; text-decoration:none; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1rem 1.2rem; transition:border-color .2s; }
+    .guide-nav a:hover { border-color:#6366f1; }
+    .guide-nav .nav-dir { font-size:.75rem; color:var(--text-muted); margin-bottom:.25rem; }
+    .guide-nav .nav-title { font-weight:700; color:var(--text-primary); font-size:.95rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <a href="index.html" style="display:flex;align-items:center;gap:.5rem;text-decoration:none;color:inherit;">
+          <i class="fas fa-spell-check"></i><span>Rechtschreibe API</span>
+        </a>
+      </div>
+      <div class="nav-menu">
+        <a href="index.html#home"    class="nav-link">Home</a>
+        <a href="index.html#pricing" class="nav-link">Preise</a>
+        <a href="index.html#docs"    class="nav-link">Dokumentation</a>
+        <a href="index.html#demo"    class="nav-link">Demo</a>
+        <a href="faq.html"           class="nav-link">FAQ</a>
+        <a href="changelog.html"     class="nav-link">Changelog</a>
+        <a href="blog.html"          class="nav-link">Blog</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="guide-hero">
+    <div class="container">
+      <p class="breadcrumb"><a href="index.html">Home</a> / <a href="index.html#was-ist">Guides</a> / Use Cases</p>
+      <h1>🚀 Spellcheck API – Anwendungsfälle<br><span class="gradient-text">SaaS, KI-Assistenten, CMS & mehr</span></h1>
+      <div class="meta">
+        <span><i class="fas fa-clock"></i> 15 Min. Lesezeit</span>
+        <span><i class="fas fa-layer-group"></i> Alle Level</span>
+        <span><i class="fas fa-calendar"></i> März 2026</span>
+      </div>
+      <p class="lead">
+        Eine <strong>Rechtschreibprüfung API</strong> ist nicht nur für Textverarbeitungsprogramme. Von SaaS-Dashboards über KI-Chatbots bis zu E-Commerce-Produktseiten – überall wo Nutzer Text eingeben oder Inhalte generiert werden, lohnt sich die Integration. Dieser Guide zeigt konkrete Szenarien mit Code.
+      </p>
+    </div>
+  </header>
+
+  <section class="guide-body">
+    <div class="container">
+      <div class="guide-layout">
+
+        <article class="guide-article">
+
+          <h2 id="warum">Warum brauchen Produkte Rechtschreibkorrektur?</h2>
+          <p>Tippfehler sind allgegenwärtig. Studien zeigen, dass Nutzer im Schnitt <strong>3–7 Tippfehler pro 100 Wörter</strong> machen – besonders auf mobilen Geräten. Die Konsequenzen sind real:</p>
+
+          <div class="metric-row">
+            <div class="metric"><div class="val">74%</div><div class="lbl">Nutzer vertrauen Texten weniger bei Tippfehlern</div></div>
+            <div class="metric"><div class="val">59%</div><div class="lbl">Kaufabbrüche bei Fehlern in Produktbeschreibungen</div></div>
+            <div class="metric"><div class="val">~15%</div><div class="lbl">schlechtere Suchranking-Qualität bei Fehlern</div></div>
+            <div class="metric"><div class="val">3–7×</div><div class="lbl">mehr Fehler auf Smartphones vs. Desktop</div></div>
+          </div>
+
+          <p>Automatische Korrektur via API schützt Ihren Content – ohne dass Nutzer oder Redakteure jeden Text manuell prüfen müssen. Die API arbeitet im Hintergrund, unsichtbar für den Endnutzer.</p>
+
+          <h2 id="overview">Übersicht der Use Cases</h2>
+          <table>
+            <thead><tr><th>Use Case</th><th>Branche</th><th>Empfohlener Plan</th><th>Anfragen/Tag (typisch)</th></tr></thead>
+            <tbody>
+              <tr><td>CMS / Redaktion</td><td>Media, Publishing</td><td><span class="badge-free">Free</span></td><td>100–2.000</td></tr>
+              <tr><td>SaaS Text-Editor</td><td>B2B Software</td><td><span class="badge-pro">Pro</span></td><td>5.000–50.000</td></tr>
+              <tr><td>Chatbot / LLM-Pipeline</td><td>KI / Automation</td><td><span class="badge-pro">Pro</span></td><td>10.000–100.000</td></tr>
+              <tr><td>E-Commerce Produktdaten</td><td>Retail</td><td><span class="badge-pro">Pro</span></td><td>1.000–20.000</td></tr>
+              <tr><td>EdTech / Sprachlern-App</td><td>Education</td><td><span class="badge-pro">Pro</span></td><td>5.000–30.000</td></tr>
+              <tr><td>E-Mail Marketing</td><td>Marketing</td><td><span class="badge-free">Free</span></td><td>50–500</td></tr>
+              <tr><td>Enterprise Datenpipeline</td><td>Enterprise</td><td><span class="badge-ent">Enterprise</span></td><td>100.000+</td></tr>
+            </tbody>
+          </table>
+
+          <h2 id="cms">Use Case 1 – CMS & Content-Plattformen</h2>
+          <div class="uc-card">
+            <div class="uc-header">
+              <div class="uc-icon">📝</div>
+              <div>
+                <h3>Automatische Korrektur vor Veröffentlichung</h3>
+                <span class="uc-badge badge-free">Free Plan ausreichend</span>
+              </div>
+            </div>
+            <p>Für Content-Teams, die täglich dutzende Artikel, Produktbeschreibungen oder News-Texte veröffentlichen, ist manuelle Rechtschreibkontrolle ineffizient. Mit FrameSpell lässt sich der Workflow automatisieren: Sobald ein Autor auf „Veröffentlichen" klickt, wird der Text automatisch geprüft und korrigiert – oder zumindest werden potenzielle Fehler markiert.</p>
+
+            <p><strong>Typischer Workflow:</strong></p>
+            <ol>
+              <li>Redakteur schreibt Artikel im CMS (WordPress, Contentful, Strapi o.ä.)</li>
+              <li>Ein Webhook oder Pre-Save-Hook sendet den Rohtext an FrameSpell</li>
+              <li>Die korrigierte Version wird als Entwurf gespeichert oder dem Redakteur zur Bestätigung angezeigt</li>
+              <li>Optional: Diff-Ansicht zeigt alle vorgenommenen Korrekturen</li>
+            </ol>
+          </div>
+
+          <div class="code-block">
+            <span class="code-label">Node.js – WordPress Pre-Publish Hook</span>
+            <pre><code>// Strapi Plugin oder Next.js API Route
+async function autoCorrectBeforePublish(articleBody) {
+  const paragraphs = articleBody.split('\n\n').filter(Boolean);
+
+  // Parallel korrigieren (max. 5 gleichzeitig)
+  const corrected = [];
+  for (let i = 0; i &lt; paragraphs.length; i += 5) {
+    const batch = await Promise.all(
+      paragraphs.slice(i, i + 5).map(p =>
+        framespell.spellcheck({ text: p, language: 'de' })
+      )
+    );
+    corrected.push(...batch.map(r => r.corrected));
+  }
+
+  return corrected.join('\n\n');
+}</code></pre>
+          </div>
+
+          <h2 id="saas">Use Case 2 – SaaS-Produkte mit Text-Editoren</h2>
+          <div class="uc-card">
+            <div class="uc-header">
+              <div class="uc-icon">💼</div>
+              <div>
+                <h3>Inline-Korrektur im Web-Editor</h3>
+                <span class="uc-badge badge-pro">Pro Plan empfohlen</span>
+              </div>
+            </div>
+            <p>SaaS-Produkte wie Projektmanagement-Tools, CRM-Systeme oder Helpdesk-Software haben oft Text-Eingabefelder: Ticket-Beschreibungen, Kundennotizen, interne Kommentare. Eine eingebettete Rechtschreibprüfung erhöht die Datenqualität und das Produkt-Wahrnehmung erheblich.</p>
+
+            <p>Der UX-Ansatz: Korrekturen werden im Hintergrund berechnet (500ms Debounce nach Ende der Eingabe), fehlerhafte Wörter werden unterstrichen dargestellt, per Klick kann der Nutzer die Korrektur annehmen.</p>
+          </div>
+
+          <div class="code-block">
+            <span class="code-label">JavaScript – Debounced Live-Check (Frontend → Backend)</span>
+            <pre><code>// Frontend: Debounce + API-Aufruf über eigene Backend-Route
+const textarea = document.querySelector('#ticket-body');
+let debounceTimer;
+
+textarea.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(async () => {
+    const text = textarea.value.trim();
+    if (text.length &lt; 20) return;
+
+    // Eigene Backend-Route aufrufen (API Key bleibt serverseitig)
+    const { corrected } = await fetch('/api/spellcheck', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    }).then(r => r.json());
+
+    // Unterschiede hervorheben
+    if (corrected !== text) showCorrectionHint(corrected);
+  }, 600); // 600ms nach letztem Tastenanschlag
+});</code></pre>
+          </div>
+
+          <h2 id="ki-assistenten">Use Case 3 – KI-Assistenten & LLM-Pipelines</h2>
+          <div class="uc-card">
+            <div class="uc-header">
+              <div class="uc-icon">🤖</div>
+              <div>
+                <h3>Prompt-Bereinigung vor LLM-Calls</h3>
+                <span class="uc-badge badge-pro">Pro Plan empfohlen</span>
+              </div>
+            </div>
+            <p>Ein unterschätzter Use Case: Das <strong>Bereinigen von Nutzereingaben vor dem Weiterleiten an LLMs</strong> wie GPT-4, Claude oder eigene Modelle. Tippfehler in Prompts führen zu schlechteren Antworten – besonders bei Faktenanfragen und Namensnennungen. FrameSpell kann als Pre-Processing-Schritt in jede LLM-Pipeline eingebaut werden.</p>
+
+            <p>Warum ist das wichtig? Suchbasierte Retrieval-Systeme (RAG) matchen auf exakte oder sehr ähnliche Strings. „Berln" findet möglicherweise nicht „Berlin". Eine vorgelagerte Korrektur verbessert die Retrieval-Qualität messbar.</p>
+          </div>
+
+          <div class="code-block">
+            <span class="code-label">Python – FrameSpell als LLM Pre-Processor</span>
+            <pre><code">import os, requests
+
+SPELL_URL = "https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck"
+SPELL_KEY  = os.environ["FRAMESPELL_API_KEY"]
+
+def preprocess_prompt(user_input: str) -> str:
+    """Korrigiert den Nutzer-Prompt bevor er an das LLM gesendet wird."""
+    resp = requests.post(
+        SPELL_URL,
+        json={"text": user_input, "language": "de"},
+        headers={"X-API-Key": SPELL_KEY},
+        timeout=5
+    )
+    result = resp.json()
+    return result["data"]["corrected"] if result["success"] else user_input
+
+
+def ask_llm(user_prompt: str) -> str:
+    clean_prompt = preprocess_prompt(user_prompt)
+
+    # Weiterleitung an beliebiges LLM (OpenAI, Anthropic, etc.)
+    # response = openai_client.chat.completions.create(...)
+    return f"[LLM called with]: {clean_prompt}"
+
+
+# Test
+raw    = "Was ist die Hauptstat von Deutshland?"
+answer = ask_llm(raw)
+print(answer)  # Prompt wird zu: "Was ist die Hauptstadt von Deutschland?"</code></pre>
+          </div>
+
+          <div class="callout success">
+            <strong>💡 Tipp für RAG-Systeme:</strong> Korrigieren Sie sowohl Nutzerfragen (Queries) als auch die indizierten Dokumente. Beidseitige Konsistenz erhöht die Retrieval-Qualität um bis zu 30 %.
+          </div>
+
+          <h2 id="ecommerce">Use Case 4 – E-Commerce & Produktdaten</h2>
+          <div class="uc-card">
+            <div class="uc-header">
+              <div class="uc-icon">🛒</div>
+              <div>
+                <h3>Produktbeschreibungen & Bewertungen bereinigen</h3>
+                <span class="uc-badge badge-pro">Pro Plan empfohlen</span>
+              </div>
+            </div>
+            <p>E-Commerce-Shops mit tausenden SKUs oder User-Generated Content haben ein chronisches Tippfehlerproblem. Produkttitel wie „Herren Winerjacke" statt „Herrenjacke" schaden SEO und Conversion gleichermaßen. FrameSpell kann als Batch-Job regelmäßig Produktdaten bereinigen – oder Live bei Produkteingaben prüfen.</p>
+
+            <p>Besonders wertvoll: Das KI-Modell erkennt branchenspezifische Fehler (z.B. „Lengg" statt „Länge"), die einfache Wörterbücher übersehen würden.</p>
+          </div>
+
+          <div class="code-block">
+            <span class="code-label">Python – Batch-Bereinigung von Produktdaten</span>
+            <pre><code">import os, requests, csv
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+API_URL = "https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck"
+API_KEY = os.environ["FRAMESPELL_API_KEY"]
+
+def correct_product(row):
+    desc = row["description"]
+    resp = requests.post(
+        API_URL,
+        json={"text": desc, "language": "de"},
+        headers={"X-API-Key": API_KEY},
+        timeout=8
+    ).json()
+    row["description_corrected"] = resp["data"]["corrected"] if resp["success"] else desc
+    return row
+
+# CSV einlesen und parallel korrigieren
+with open("products.csv", newline="", encoding="utf-8") as f:
+    products = list(csv.DictReader(f))
+
+with ThreadPoolExecutor(max_workers=10) as pool:
+    futures   = [pool.submit(correct_product, p) for p in products]
+    corrected = [f.result() for f in as_completed(futures)]
+
+print(f"✓ {len(corrected)} Produkte bereinigt")</code></pre>
+          </div>
+
+          <h2 id="edtech">Use Case 5 – EdTech & Sprachlern-Apps</h2>
+          <div class="uc-card">
+            <div class="uc-header">
+              <div class="uc-icon">🎓</div>
+              <div>
+                <h3>Sofortiges Feedback beim Deutschlernen</h3>
+                <span class="uc-badge badge-pro">Pro Plan empfohlen</span>
+              </div>
+            </div>
+            <p>Für Lernplattformen ist die Rechtschreibprüfung API ein direkter Mehrwert: Lernende schreiben einen deutschen Satz und erhalten sofortiges, präzises Feedback – ohne dass ein Lehrer eingreifen muss. Das Modell korrigiert Rechtschreibfehler und gibt damit einen direkten Lernimpuls.</p>
+
+            <p>Besonders effektiv in Kombination mit: Diff-Anzeige (Originaltext vs. Korrektur), Zählung der Fehler über Zeit, und Gamification-Elementen (Streak-Erhalt bei fehlerfreien Texten).</p>
+          </div>
+
+          <div class="code-block">
+            <span class="code-label">JavaScript – Diff-Anzeige für Lernende</span>
+            <pre><code>async function checkStudentAnswer(originalText) {
+  const resp = await fetch('/api/spellcheck', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: originalText })
+  });
+  const { corrected } = await resp.json();
+
+  // Wörter vergleichen und Fehler hervorheben
+  const origWords = originalText.split(' ');
+  const corrWords = corrected.split(' ');
+
+  return origWords.map((word, i) => {
+    if (word !== corrWords[i]) {
+      return `&lt;mark class="error"&gt;${word}&lt;/mark&gt;
+             &lt;span class="fix"&gt;→ ${corrWords[i]}&lt;/span&gt;`;
+    }
+    return word;
+  }).join(' ');
+}
+
+// Rendering im DOM
+const feedback = await checkStudentAnswer('Ich wone in Münhen');
+document.querySelector('#feedback').innerHTML = feedback;
+// → "Ich &lt;mark&gt;wone&lt;/mark&gt; → wohne in &lt;mark&gt;Münhen&lt;/mark&gt; → München"</code></pre>
+          </div>
+
+          <h2 id="email">Use Case 6 – E-Mail-Marketing & Transaktions-Mails</h2>
+          <div class="uc-card">
+            <div class="uc-header">
+              <div class="uc-icon">📧</div>
+              <div>
+                <h3>Letzte Qualitätsprüfung vor Versand</h3>
+                <span class="uc-badge badge-free">Free Plan ausreichend</span>
+              </div>
+            </div>
+            <p>E-Mail-Kampagnen werden oft unter Zeitdruck erstellt. Ein einziger Tippfehler im Subject-Line oder im CTA-Button kann die Click-Rate senken und die Markenwahrnehmung beschädigen. FrameSpell lässt sich als letzter Pre-Send-Check in jede E-Mail-Pipeline integrieren – ob Mailchimp, Brevo, oder ein eigenes System.</p>
+          </div>
+
+          <div class="code-block">
+            <span class="code-label">Node.js – Pre-Send E-Mail Check</span>
+            <pre><code>async function validateEmailBeforeSend(campaign) {
+  const fields = [campaign.subject, campaign.preheader, campaign.body];
+  const corrected = await Promise.all(
+    fields.map(f => framespell.spellcheck({ text: f, language: 'de' }))
+  );
+
+  const hasErrors = fields.some((f, i) => f !== corrected[i].corrected);
+
+  if (hasErrors) {
+    return {
+      approved: false,
+      suggestions: {
+        subject:   corrected[0].corrected,
+        preheader: corrected[1].corrected,
+        body:      corrected[2].corrected,
+      }
+    };
+  }
+
+  return { approved: true };
+}</code></pre>
+          </div>
+
+          <h2 id="enterprise">Use Case 7 – Enterprise-Datenpipelines</h2>
+          <div class="uc-card">
+            <div class="uc-header">
+              <div class="uc-icon">🏭</div>
+              <div>
+                <h3>Massenhaftes Bereinigen von Datenbankeinträgen</h3>
+                <span class="uc-badge badge-ent">Enterprise Plan</span>
+              </div>
+            </div>
+            <p>Unternehmen mit gewachsenen Datenbanken (CRM-Daten, Support-Tickets, Produktkataloge, interne Dokumentation) haben oft jahrelange Altlasten an Tippfehlern. Eine einmalige oder regelmäßige Bereinigung via FrameSpell verbessert die Datenqualität und damit alle nachgelagerten Prozesse: Suche, Analysen, KI-Auswertungen.</p>
+
+            <p>Im Enterprise-Plan können Custom-Modelle auf branchenspezifisches Vokabular feinabgestimmt werden – ideal für Medizin, Recht, Finanzen oder Technik.</p>
+          </div>
+
+          <table>
+            <thead><tr><th>Branche</th><th>Typische Datenquelle</th><th>Benefit durch Korrektur</th></tr></thead>
+            <tbody>
+              <tr><td>Healthcare</td><td>Patientennotizen, Diagnosen</td><td>Bessere Suche, KI-Auswertung</td></tr>
+              <tr><td>Legal</td><td>Verträge, Schriftsätze</td><td>Saubere Dokumenten-Archive</td></tr>
+              <tr><td>Retail</td><td>Produktkataloge, Bewertungen</td><td>SEO + Conversion</td></tr>
+              <tr><td>HR</td><td>Stellenausschreibungen, CVs</td><td>Professionelles Auftreten</td></tr>
+              <tr><td>Finance</td><td>Reports, Kundenkorrespondenz</td><td>Compliance & Reputation</td></tr>
+            </tbody>
+          </table>
+
+          <h2 id="roi">ROI-Betrachtung: Lohnt sich die API?</h2>
+          <p>Die Frage nach dem Return on Investment lässt sich für die meisten Use Cases klar beantworten:</p>
+
+          <table>
+            <thead><tr><th>Use Case</th><th>Kosten/Monat (Pro)</th><th>Typischer Mehrwert</th></tr></thead>
+            <tbody>
+              <tr><td>CMS (500 Artikel/Monat)</td><td>€0 (Free reicht)</td><td>~2h Korrekturarbeit eingespart</td></tr>
+              <tr><td>SaaS (50.000 Inputs/Monat)</td><td>€29</td><td>höhere Datenqualität, weniger Support</td></tr>
+              <tr><td>E-Commerce (5.000 SKUs)</td><td>€29</td><td>besseres SEO-Ranking, mehr Conversions</td></tr>
+              <tr><td>LLM-Pipeline (100k Prompts)</td><td>€290 (Enterprise)</td><td>bis zu 30 % bessere LLM-Antwortqualität</td></tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <strong>💡 Fazit:</strong> Für die meisten Anwendungsfälle amortisiert sich der Pro-Plan (€29/Monat) bereits durch das Einsparen weniger Stunden manueller Korrekturarbeit oder eine messbar bessere Datenqualität.
+          </div>
+
+          <div class="guide-nav">
+            <a href="guide-integration.html">
+              <div class="nav-dir">← Vorheriger Guide</div>
+              <div class="nav-title">🔌 Integration Guide</div>
+            </a>
+            <a href="guide-vergleich.html" style="text-align:right;">
+              <div class="nav-dir">Nächster Guide →</div>
+              <div class="nav-title">⚖️ API-Vergleich 2026</div>
+            </a>
+          </div>
+
+        </article>
+
+        <!-- TOC -->
+        <aside class="guide-toc">
+          <h3>Inhalt</h3>
+          <a href="#warum">Warum Rechtschreibkorrektur?</a>
+          <a href="#overview">Übersicht Use Cases</a>
+          <a href="#cms">1 – CMS & Content</a>
+          <a href="#saas">2 – SaaS-Produkte</a>
+          <a href="#ki-assistenten">3 – KI-Assistenten</a>
+          <a href="#ecommerce">4 – E-Commerce</a>
+          <a href="#edtech">5 – EdTech</a>
+          <a href="#email">6 – E-Mail-Marketing</a>
+          <a href="#enterprise">7 – Enterprise</a>
+          <a href="#roi">ROI-Betrachtung</a>
+        </aside>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="faq.html">FAQ</a><span class="footer-divider">•</span>
+          <a href="changelog.html">Changelog</a><span class="footer-divider">•</span>
+          <a href="blog.html">Blog</a><span class="footer-divider">•</span>
+          <a href="docs.html">Docs</a><span class="footer-divider">•</span>
+          <a href="impressum.html">Impressum</a><span class="footer-divider">•</span>
+          <a href="datenschutz.html">Datenschutz</a>
+        </div>
+        <div class="footer-powered">© 2026 FrameSpell. Powered by <a href="https://frame-sphere.vercel.app/" target="_blank" rel="noopener">FrameSphere</a></div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

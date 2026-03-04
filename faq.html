@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ – Häufige Fragen zur Rechtschreibprüfung API | FrameSpell</title>
+  <meta name="description" content="Antworten auf die häufigsten Fragen zur FrameSpell Rechtschreibprüfung API: Preise, Integration, Sprachen, Rate Limits, Sicherheit und mehr.">
+  <meta name="keywords" content="FAQ Rechtschreibprüfung API, Spellcheck API Fragen, FrameSpell Hilfe, API Dokumentation, Rate Limits, Sprachunterstützung">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://framespell.pages.dev/faq.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://framespell.pages.dev/faq.html">
+  <meta property="og:title" content="FAQ – Häufige Fragen zur Rechtschreibprüfung API | FrameSpell">
+  <meta property="og:description" content="Alle Antworten zur FrameSpell Spellcheck API: Preise, Integration, Sprachen, Rate Limits.">
+  <meta property="og:image" content="https://framespell.pages.dev/og-image.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"Was ist FrameSpell?","acceptedAnswer":{"@type":"Answer","text":"FrameSpell ist eine KI-gestützte Rechtschreibprüfung API für Entwickler. Über eine einfache REST-Schnittstelle können Anwendungen Texte automatisch korrigieren lassen – powered by MT5 und Cloudflare Workers."}},
+      {"@type":"Question","name":"Ist die API kostenlos?","acceptedAnswer":{"@type":"Answer","text":"Ja. Der Free-Plan umfasst 20 Anfragen pro Minute ohne Kreditkarte. Für höhere Volumina gibt es den Professional-Plan ab €29/Monat."}},
+      {"@type":"Question","name":"Welche Sprachen werden unterstützt?","acceptedAnswer":{"@type":"Answer","text":"Aktuell Deutsch (DE). Englisch, Spanisch und Französisch sind in Entwicklung."}},
+      {"@type":"Question","name":"Wie integriere ich die API?","acceptedAnswer":{"@type":"Answer","text":"Ein POST-Request an den /spellcheck-Endpunkt mit JSON-Body {text, language} und dem X-API-Key Header. Fertig. Kein SDK nötig."}},
+      {"@type":"Question","name":"Wie sicher sind meine Daten?","acceptedAnswer":{"@type":"Answer","text":"Texte werden ausschließlich zur Korrektur verarbeitet und nicht dauerhaft gespeichert. Die Infrastruktur läuft auf Cloudflare Workers mit TLS-Verschlüsselung."}}
+    ]
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    .faq-hero {
+      padding: 7rem 0 3.5rem;
+      text-align: center;
+      background: radial-gradient(ellipse at top, rgba(99,102,241,.12) 0%, transparent 65%);
+    }
+    .faq-hero h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: .75rem; }
+    .faq-hero p  { color: var(--text-secondary); font-size: 1.1rem; max-width: 540px; margin: 0 auto; }
+
+    .faq-body { padding: 3.5rem 0 6rem; }
+    .faq-wrap { max-width: 820px; margin: 0 auto; }
+
+    .faq-category { margin-bottom: 3rem; }
+    .faq-category-title {
+      font-size: 1rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: #6366f1;
+      margin-bottom: 1rem; padding-bottom: .5rem;
+      border-bottom: 1px solid rgba(99,102,241,.25);
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      margin-bottom: .75rem;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .faq-item:hover { border-color: rgba(99,102,241,.4); }
+
+    .faq-q {
+      width: 100%; background: none; border: none; text-align: left;
+      padding: 1.15rem 1.4rem; cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      color: var(--text-primary); font-size: .97rem; font-weight: 600;
+    }
+    .faq-q .icon {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(99,102,241,.15); display: flex; align-items: center;
+      justify-content: center; font-size: .7rem; color: #a78bfa;
+      transition: transform .25s, background .2s;
+    }
+    .faq-item.open .faq-q .icon { transform: rotate(45deg); background: rgba(99,102,241,.3); }
+
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height .3s ease, padding .3s;
+      padding: 0 1.4rem;
+      color: var(--text-secondary); font-size: .92rem; line-height: 1.75;
+    }
+    .faq-item.open .faq-a { max-height: 600px; padding: 0 1.4rem 1.25rem; }
+
+    .faq-a table {
+      width: 100%; border-collapse: collapse; margin-top: .75rem; font-size: .85rem;
+    }
+    .faq-a th {
+      background: rgba(99,102,241,.08); text-align: left;
+      padding: .6rem .85rem; border: 1px solid var(--border);
+      color: #a78bfa; font-weight: 700;
+    }
+    .faq-a td {
+      padding: .6rem .85rem; border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .faq-a code {
+      background: rgba(99,102,241,.12); color: #a78bfa;
+      padding: .1rem .4rem; border-radius: 4px; font-size: .88em;
+    }
+    .faq-a pre {
+      background: #0d1524; border: 1px solid var(--border); border-radius: 8px;
+      padding: 1rem; overflow-x: auto; font-size: .82rem; margin-top: .75rem;
+      line-height: 1.6; color: #e2e8f0;
+    }
+
+    .faq-cta {
+      text-align: center; padding: 3rem 1.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; margin-top: 3rem;
+    }
+    .faq-cta h2 { font-size: 1.5rem; margin-bottom: .6rem; }
+    .faq-cta p  { color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+    .badge-free    { color: #10b981; font-weight: 700; }
+    .badge-pro     { color: #6366f1; font-weight: 700; }
+    .badge-ent     { color: #f59e0b; font-weight: 700; }
+    .badge-yes     { color: #10b981; }
+    .badge-no      { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <a href="index.html" style="display:flex;align-items:center;gap:.5rem;text-decoration:none;color:inherit;">
+          <i class="fas fa-spell-check"></i>
+          <span>Rechtschreibe API</span>
+        </a>
+      </div>
+      <div class="nav-menu">
+        <a href="index.html#home"    class="nav-link">Home</a>
+        <a href="index.html#pricing" class="nav-link">Preise</a>
+        <a href="index.html#docs"    class="nav-link">Dokumentation</a>
+        <a href="index.html#demo"    class="nav-link">Demo</a>
+        <a href="faq.html"           class="nav-link" style="color:#a78bfa;">FAQ</a>
+        <a href="changelog.html"     class="nav-link">Changelog</a>
+        <a href="blog.html"          class="nav-link">Blog</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="faq-hero">
+    <div class="container">
+      <h1>Häufig gestellte Fragen</h1>
+      <p>Alles, was Sie über die FrameSpell Rechtschreibprüfung API wissen müssen – von der ersten Integration bis zum Enterprise-Einsatz.</p>
+    </div>
+  </header>
+
+  <main class="faq-body">
+    <div class="container">
+      <div class="faq-wrap">
+
+        <!-- ═══ Allgemein ═══ -->
+        <div class="faq-category">
+          <div class="faq-category-title"><i class="fas fa-info-circle" style="margin-right:.4rem;"></i>Allgemein</div>
+
+          <div class="faq-item open">
+            <button class="faq-q">
+              Was ist FrameSpell und wofür wird es verwendet?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>FrameSpell ist eine <strong>KI-gestützte Rechtschreibprüfung API</strong> für Entwickler und Unternehmen. Sie schicken einen deutschen Text per HTTP-POST – die API gibt den korrigierten Text als JSON zurück. Das Modell dahinter (MT5) versteht Kontext, nicht nur einzelne Wörter. Typische Anwendungsfälle sind CMS-Integrationen, SaaS-Produkte, Chatbots, E-Mail-Systeme und EdTech-Plattformen.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Was unterscheidet eine KI-API von einem regelbasierten Spellchecker?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Klassische Spellchecker vergleichen Wörter mit einem Wörterbuch und prüfen Grammatikregeln. Sie scheitern bei Kontextfehlern wie <em>„Er fuhr nah Berlin"</em> – jedes Wort ist korrekt geschrieben, die Präposition ist aber falsch. Das MT5-Modell von FrameSpell analysiert den gesamten Satzzusammenhang und erkennt solche semantischen Fehler zuverlässig. Ergebnis: deutlich weniger False Positives und bessere Korrekturen bei Fachvokabular, zusammengesetzten Wörtern und idiomatischen Ausdrücken.</p>
+              <table>
+                <thead><tr><th>Merkmal</th><th>Regelbasiert</th><th>KI (FrameSpell)</th></tr></thead>
+                <tbody>
+                  <tr><td>Kontextverständnis</td><td class="badge-no">✗ Nein</td><td class="badge-yes">✓ Ja</td></tr>
+                  <tr><td>Neue Wörter / Fachbegriffe</td><td class="badge-no">✗ Oft Fehler</td><td class="badge-yes">✓ Robust</td></tr>
+                  <tr><td>Zusammengesetzte Wörter (DE)</td><td class="badge-no">✗ Begrenzt</td><td class="badge-yes">✓ Gut</td></tr>
+                  <tr><td>Setup-Aufwand</td><td class="badge-yes">✓ Minimal</td><td class="badge-yes">✓ Minimal (API)</td></tr>
+                  <tr><td>Self-Hosting nötig</td><td>Oft ja</td><td class="badge-no">✗ Nein (Cloud)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Welche Genauigkeit erreicht FrameSpell?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>FrameSpell erreicht auf deutschen Standardtexten eine Genauigkeit von <strong>99.2 %</strong>. Bei stark umgangssprachlichen Texten oder sehr seltenen Fachbegriffen kann die Genauigkeit leicht abweichen. Das Modell wird kontinuierlich weiterentwickelt. Nutzer des Enterprise-Plans können auf Custom-Modelle setzen, die speziell auf ihren Fachbereich feinabgestimmt sind.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Auf welcher Infrastruktur läuft FrameSpell?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>FrameSpell läuft vollständig auf <strong>Cloudflare Workers</strong> – Cloudflares globalem Edge-Netzwerk mit über 300 Rechenzentren weltweit. Das bedeutet: Ihre API-Anfragen werden automatisch vom geografisch nächstgelegenen Knoten verarbeitet. DDoS-Schutz, automatisches TLS und 99.9 % Uptime sind inklusive – kein separates Setup nötig.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ Preise & Pläne ═══ -->
+        <div class="faq-category">
+          <div class="faq-category-title"><i class="fas fa-euro-sign" style="margin-right:.4rem;"></i>Preise & Pläne</div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Ist FrameSpell wirklich kostenlos?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Ja. Der <span class="badge-free">Free-Plan</span> ist dauerhaft kostenlos und umfasst <strong>20 Anfragen pro Minute</strong> – ohne Kreditkarte, ohne Ablaufdatum. Er eignet sich ideal für Prototypen, kleine Projekte und zum Testen der API. Zusätzliche Anfragen über das Limit werden mit <strong>€0.009 pro Request</strong> abgerechnet oder Sie wechseln auf einen Plan mit höheren Limits.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Was ist im Professional-Plan enthalten?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Der <span class="badge-pro">Professional-Plan</span> kostet <strong>€29/Monat</strong> (inkl. MwSt.) und bietet:</p>
+              <table>
+                <thead><tr><th>Feature</th><th>Free</th><th>Professional</th></tr></thead>
+                <tbody>
+                  <tr><td>Anfragen/Minute</td><td>20</td><td><strong>100</strong></td></tr>
+                  <tr><td>Alle Sprachen</td><td>DE only</td><td><strong>Ja (wenn verfügbar)</strong></td></tr>
+                  <tr><td>Nutzungsstatistiken</td><td class="badge-no">✗</td><td class="badge-yes">✓</td></tr>
+                  <tr><td>Prioritäts-Support</td><td class="badge-no">✗</td><td class="badge-yes">✓</td></tr>
+                  <tr><td>Erweiterte API-Features</td><td class="badge-no">✗</td><td class="badge-yes">✓</td></tr>
+                  <tr><td>Monatliche Kosten</td><td>€0</td><td><strong>€29</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Was bietet der Enterprise-Plan?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Der <span class="badge-ent">Enterprise-Plan</span> (€290/Monat) richtet sich an Unternehmen mit hohem Volumen oder spezifischen Anforderungen:</p>
+              <ul style="margin:.5rem 0 .5rem 1.2rem;line-height:2;">
+                <li>Unbegrenzte API-Anfragen</li>
+                <li>Custom ML-Modelle (auf Ihren Fachbereich feinabgestimmt)</li>
+                <li>SLA-Garantie mit definierten Reaktionszeiten</li>
+                <li>Dedizierter Account Manager</li>
+                <li>On-Premise-Option (eigene Cloudflare-Instanz)</li>
+                <li>Rechnungsstellung per Überweisung möglich</li>
+              </ul>
+              <p>Kontaktieren Sie uns für ein individuelles Angebot.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Kann ich den Plan jederzeit wechseln oder kündigen?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Ja. Pläne können monatlich gewechselt oder gekündigt werden – keine Mindestlaufzeit, kein Kleingedrucktes. Nach einer Kündigung behalten Sie bis zum Ende des bezahlten Zeitraums vollen Zugang zum gebuchten Plan. Danach wird automatisch auf den kostenlosen Free-Plan gewechselt.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ Integration & Technik ═══ -->
+        <div class="faq-category">
+          <div class="faq-category-title"><i class="fas fa-code" style="margin-right:.4rem;"></i>Integration & Technik</div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Wie sieht ein einfacher API-Request aus?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Ein minimaler Request mit cURL:</p>
+              <pre>curl -X POST https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Das ist ein Beispeil text", "language": "de"}'</pre>
+              <p style="margin-top:.75rem;">Die Antwort hat immer dieses Format:</p>
+              <pre>{
+  "success": true,
+  "data": {
+    "corrected": "Das ist ein Beispieltext",
+    "original":  "Das ist ein Beispeil text",
+    "processing_time": 143.2,
+    "tokens_used": 6
+  }
+}</pre>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Welche Programmiersprachen werden unterstützt?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>FrameSpell ist eine standard REST API – sie funktioniert mit <strong>jeder Sprache und jedem Framework</strong>, das HTTP-Requests absetzen kann: JavaScript, TypeScript, Python, Node.js, PHP, Ruby, Go, Java, Kotlin, Swift, Rust, C#, cURL und mehr. Code-Beispiele für die wichtigsten Sprachen finden Sie in der <a href="index.html#docs" style="color:#a78bfa;">Dokumentation</a> auf der Startseite.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Wo finde ich meinen API Key?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Nach der Registrierung und Anmeldung finden Sie Ihren API Key im <strong>Dashboard</strong> unter dem Menüpunkt <em>API Keys</em>. Klicken Sie auf <em>Key generieren</em>, kopieren Sie ihn und verwenden Sie ihn im <code>X-API-Key</code> Header jedes Requests. Behandeln Sie Ihren API Key wie ein Passwort – teilen Sie ihn nicht öffentlich.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Was passiert bei einem Rate-Limit-Fehler (HTTP 429)?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Wenn Sie das Anfragenlimit überschreiten, antwortet die API mit <code>HTTP 429 Too Many Requests</code>. Der Response-Body enthält:</p>
+              <pre>{"success": false, "error": "Rate limit exceeded", "retry_after": 12}</pre>
+              <p style="margin-top:.6rem;"><code>retry_after</code> gibt an, nach wie vielen Sekunden Sie es erneut versuchen können. Implementieren Sie in Ihrer Anwendung ein einfaches Exponential-Backoff-Retry-Pattern, um dies elegant zu handhaben.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Wie lang darf der zu prüfende Text maximal sein?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Pro Anfrage können Sie bis zu <strong>5.000 Zeichen</strong> (ca. 750–900 Wörter) senden. Für längere Dokumente empfehlen wir, den Text in Absätze oder Sätze aufzuteilen und mehrere Requests parallel abzufeuern. Im Enterprise-Plan können individuelle Limits konfiguriert werden.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Gibt es ein offizielles SDK oder eine Client-Library?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Aktuell gibt es kein offizielles SDK – das ist aber auch nicht nötig. Ein einfaches <code>fetch()</code> in JavaScript oder <code>requests.post()</code> in Python reicht völlig aus. Da die API dem REST-Standard folgt, ist eine Wrapper-Library kaum einen Mehrwert. Falls die Community ein SDK baut, werden wir es im <a href="blog.html" style="color:#a78bfa;">Blog</a> ankündigen.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ Sprachen & Modell ═══ -->
+        <div class="faq-category">
+          <div class="faq-category-title"><i class="fas fa-language" style="margin-right:.4rem;"></i>Sprachen & Modell</div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Welche Sprachen unterstützt FrameSpell?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <table>
+                <thead><tr><th>Sprache</th><th>Status</th><th>Verfügbar in</th></tr></thead>
+                <tbody>
+                  <tr><td>🇩🇪 Deutsch</td><td class="badge-yes">✓ Live</td><td><span class="badge-free">Free</span> + <span class="badge-pro">Pro</span></td></tr>
+                  <tr><td>🇬🇧 Englisch</td><td style="color:#f59e0b;">⏳ In Entwicklung</td><td><span class="badge-pro">Pro</span></td></tr>
+                  <tr><td>🇪🇸 Spanisch</td><td style="color:#f59e0b;">⏳ In Entwicklung</td><td><span class="badge-pro">Pro</span></td></tr>
+                  <tr><td>🇫🇷 Französisch</td><td style="color:#f59e0b;">⏳ In Entwicklung</td><td><span class="badge-pro">Pro</span></td></tr>
+                </tbody>
+              </table>
+              <p style="margin-top:.75rem;">Neue Sprachen werden im <a href="changelog.html" style="color:#a78bfa;">Changelog</a> bekannt gegeben.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Was ist das MT5-Modell und warum wurde es gewählt?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p><strong>MT5</strong> (Multilingual T5) ist ein von Google entwickeltes Seq2Seq-Transformer-Modell, das auf 101 Sprachen vortrainiert wurde. Es eignet sich besonders gut für Text-Korrektur-Aufgaben, da es Eingabe-Text in korrekten Ausgabe-Text „übersetzt". Für FrameSpell wurde das Modell speziell auf deutschen Korrektur-Datensätzen feinabgestimmt (Fine-Tuning). Vorteile gegenüber reinen Klassifikationsmodellen: Es kann nicht nur Fehler markieren, sondern direkt den korrekten Text generieren.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Funktioniert die API auch mit österreichischem oder Schweizer Deutsch?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Das Modell ist auf Standarddeutsch (Hochdeutsch) trainiert und verarbeitet österreichisches und Schweizer Deutsch in der Regel korrekt – solange die Texte keine stark dialektalen Ausdrücke enthalten. Regionale Besonderheiten wie „Jänner" (AT) oder „parkieren" (CH) werden vom Modell in der Regel toleriert und nicht „korrigiert". Bei sehr starken Dialekten oder Mundartschreiben sind die Ergebnisse weniger zuverlässig.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ Datenschutz & Sicherheit ═══ -->
+        <div class="faq-category">
+          <div class="faq-category-title"><i class="fas fa-shield-alt" style="margin-right:.4rem;"></i>Datenschutz & Sicherheit</div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Werden meine Texte gespeichert oder für Training verwendet?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Nein. Texte, die über die API gesendet werden, werden <strong>nicht dauerhaft gespeichert</strong> und nicht für das Training des Modells verwendet. Die Verarbeitung findet ausschließlich im Speicher der Cloudflare Worker statt – nach Abschluss des Requests ist der Text nicht mehr vorhanden. API Keys und Account-Daten werden verschlüsselt in Cloudflare D1 (SQLite) gespeichert.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Ist die API DSGVO-konform?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>FrameSpell verarbeitet keine personenbezogenen Daten der Endnutzer – nur den zu korrigierenden Text. Da Texte nicht gespeichert werden, entstehen keine langfristigen Datenschutzrisiken. Die Infrastruktur nutzt Cloudflares EU-Rechenzentren, wenn Requests aus der EU kommen. Für spezifische DSGVO-Anforderungen (z.&nbsp;B. Auftragsverarbeitungsvertrag) kontaktieren Sie uns über den Enterprise-Plan.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q">
+              Was passiert, wenn mein API Key kompromittiert wird?
+              <span class="icon"><i class="fas fa-plus"></i></span>
+            </button>
+            <div class="faq-a">
+              <p>Loggen Sie sich in Ihr Dashboard ein und widerrufen Sie den alten Key sofort. Sie können sofort einen neuen Key generieren. Wir empfehlen, API Keys nicht in Client-seitigem Code (Browser-JavaScript) zu verwenden, sondern ausschließlich serverseitig. Nutzen Sie Umgebungsvariablen (<code>.env</code>) und keine Hardcoded Keys in Ihrer Codebasis.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ Weiterführende Links ═══ -->
+        <div class="faq-cta">
+          <h2>Noch Fragen offen?</h2>
+          <p>Schauen Sie in unsere vertiefenden Guides oder kontaktieren Sie den Support.</p>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+            <a href="guide-integration.html" class="btn btn-primary" style="text-decoration:none;"><i class="fas fa-plug"></i> Integration Guide</a>
+            <a href="guide-anwendungsfaelle.html" class="btn btn-outline" style="text-decoration:none;"><i class="fas fa-rocket"></i> Use Cases</a>
+            <a href="guide-vergleich.html" class="btn btn-outline" style="text-decoration:none;"><i class="fas fa-balance-scale"></i> API-Vergleich</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="faq.html">FAQ</a><span class="footer-divider">•</span>
+          <a href="changelog.html">Changelog</a><span class="footer-divider">•</span>
+          <a href="blog.html">Blog</a><span class="footer-divider">•</span>
+          <a href="docs.html">Docs</a><span class="footer-divider">•</span>
+          <a href="impressum.html">Impressum</a><span class="footer-divider">•</span>
+          <a href="datenschutz.html">Datenschutz</a><span class="footer-divider">•</span>
+          <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
+        </div>
+        <div class="footer-powered">© 2026 FrameSpell. Powered by <a href="https://frame-sphere.vercel.app/" target="_blank" rel="noopener">FrameSphere</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.faq-q').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        // close all
+        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+  </script>
+</body>
+</html>
