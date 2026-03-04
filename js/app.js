@@ -1189,49 +1189,49 @@ function enhanceScrolling() {
 
 // Update active navigation link based on scroll position
 function updateActiveNavLink() {
-    // Don't update if dashboard is visible
-    if (elements.dashboard && !elements.dashboard.classList.contains('hidden')) {
+    // Don't update if dashboard wrapper is visible (not hidden)
+    const dashWrapper = document.getElementById('dashboard-wrapper');
+    if (dashWrapper && !dashWrapper.classList.contains('hidden') && dashWrapper.style.display !== 'none') {
         return;
     }
-    
-    const sections = document.querySelectorAll('section[id]');
+
     const navLinks = document.querySelectorAll('.nav-link');
-    
-    if (sections.length === 0 || navLinks.length === 0) {
-        return; // No sections or links found
-    }
-    
-    // Get current scroll position
+    if (navLinks.length === 0) return;
+
+    // Only track sections that actually have a matching nav link (href="#id")
+    const trackedIds = new Set();
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href') || '';
+        if (href.startsWith('#')) trackedIds.add(href.slice(1));
+    });
+
+    const allSections = document.querySelectorAll('section[id], main section[id]');
+    const sections = Array.from(allSections).filter(s => trackedIds.has(s.getAttribute('id')));
+    if (sections.length === 0) return;
+
     const scrollPosition = window.scrollY;
-    const navbarHeight = 80; // Height of fixed navbar
-    
-    let currentSection = 'home'; // Default to home
-    
-    // Check if we're at the very top of the page
-    if (scrollPosition < 100) {
-        currentSection = 'home';
+    const navbarHeight = 90;
+
+    let currentSection = sections[0].getAttribute('id'); // default = first tracked section
+
+    if (scrollPosition < 50) {
+        currentSection = sections[0].getAttribute('id');
     } else {
-        // Find which section we're currently in
-        // We check from bottom to top to handle overlapping sections correctly
-        const sectionsArray = Array.from(sections);
-        
-        for (let i = sectionsArray.length - 1; i >= 0; i--) {
-            const section = sectionsArray[i];
-            const sectionTop = section.offsetTop - navbarHeight - 100; // Offset for better UX
-            const sectionId = section.getAttribute('id');
-            
-            if (scrollPosition >= sectionTop) {
-                currentSection = sectionId;
+        // Walk bottom-to-top: first section whose top edge has been scrolled past
+        for (let i = sections.length - 1; i >= 0; i--) {
+            const top = sections[i].getBoundingClientRect().top + scrollPosition - navbarHeight - 60;
+            if (scrollPosition >= top) {
+                currentSection = sections[i].getAttribute('id');
                 break;
             }
         }
     }
-    
-    // Update active class on nav links
+
+    // Apply active class with smooth transition via CSS
     navLinks.forEach(link => {
         link.classList.remove('active');
-        const href = link.getAttribute('href');
-        if (href === `#${currentSection}`) {
+        const href = link.getAttribute('href') || '';
+        if (href === '#' + currentSection) {
             link.classList.add('active');
         }
     });

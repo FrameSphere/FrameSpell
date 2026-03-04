@@ -240,12 +240,11 @@
       });
     });
 
-    // Fetch
-    fetch(HQ + '/api/changelog?site_id=' + SITE)
+    // Fetch (public endpoint - no auth needed)
+    fetch(HQ + '/api/changelog/published?site_id=' + SITE)
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        var pub = (Array.isArray(data) ? data : []).filter(function (e) { return e.published; });
-        renderEntries(pub);
+        renderEntries(Array.isArray(data) ? data : []);
       })
       .catch(function () {
         document.getElementById('cl-timeline').innerHTML =

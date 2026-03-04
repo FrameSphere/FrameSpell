@@ -1438,35 +1438,223 @@ curl -X POST http://localhost:8000/spellcheck \
 
     // ── Dashboard Support Tab ────────────────────────────────────────
     var HQ_SUPPORT = 'https://webcontrol-hq-api.karol-paschek.workers.dev';
+    var _spPollTimer = null;
+    var _spActiveTicket = null;
 
-    // Load tickets from localStorage when Support tab opens
-    (function () {
-      // Hook into tab switching – wait for DOM ready
-      document.addEventListener('click', function (e) {
-        var btn = e.target.closest('[data-page="support"]');
-        if (btn) loadMyTickets();
-      });
-    })();
+    // Open support tab → load tickets
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-page="support"]')) { loadMyTickets(); }
+    });
+
+    // ── Ticket list ──
+    function getStoredTickets() {
+      try { return JSON.parse(localStorage.getItem('fshq_tickets') || '[]'); } catch(ex) { return []; }
+    }
+    function saveStoredTickets(arr) {
+      try { localStorage.setItem('fshq_tickets', JSON.stringify(arr.slice(0, 20))); } catch(ex) {}
+    }
+    function getTicketSeen(id) {
+      try { return parseInt(localStorage.getItem('fshq_seen_' + id) || '0'); } catch(ex) { return 0; }
+    }
+    function setTicketSeen(id, count) {
+      try { localStorage.setItem('fshq_seen_' + id, String(count)); } catch(ex) {}
+    }
 
     function loadMyTickets() {
+      var tickets = getStoredTickets();
       var list = document.getElementById('sp-tickets-list');
-      var stored;
-      try { stored = JSON.parse(localStorage.getItem('fshq_tickets') || '[]'); } catch (ex) { stored = []; }
-      if (!stored.length) {
+      if (!list) return;
+      if (!tickets.length) {
         list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.875rem">Noch keine Tickets erstellt.</div>';
         return;
       }
-      list.innerHTML = stored.map(function (t) {
-        var d = new Date(t.ts).toLocaleDateString('de-DE', { day:'2-digit', month:'short', year:'numeric' });
-        return '<div style="background:var(--background);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem">'
-          + '<div>'
-          + '<div style="font-size:.75rem;font-family:monospace;color:#a78bfa;font-weight:700">#' + t.id + '</div>'
-          + '<div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">' + d + '</div>'
+      // Fetch message counts in parallel to show "new" badges
+      var promises = tickets.map(function(t) {
+        return fetch(HQ_SUPPORT + '/api/support/' + t.id + '/thread?token=' + t.token, { credentials:'omit' })
+          .then(function(r){ return r.ok ? r.json() : null; })
+          .catch(function(){ return null; });
+      });
+      Promise.all(promises).then(function(results) {
+        list.innerHTML = tickets.map(function(t, i) {
+          var data = results[i];
+          var msgCount = data && data.messages ? data.messages.length : 0;
+          var seen = getTicketSeen(t.id);
+          var hasNew = msgCount > seen && seen > 0; // new admin reply since last view
+          var status = (data && data.ticket && data.ticket.status) || 'open';
+          var statusLabel = {open:'Offen',in_progress:'In Bearbeitung',resolved:'Gelöst',closed:'Geschlossen'}[status] || status;
+          var statusColor = status==='open'?'#60a5fa':status==='in_progress'?'#fbbf24':status==='resolved'?'#34d399':'#9ca3af';
+          var subject = data && data.ticket ? data.ticket.subject : '#' + t.id;
+          var d = new Date(t.ts).toLocaleDateString('de-DE',{day:'2-digit',month:'short',year:'numeric'});
+          return '<div class="sp-ticket-card" data-ticket-id="' + t.id + '" onclick="openTicketChat(' + i + ')"'
+            + ' style="background:var(--background);border:1px solid ' + (hasNew ? 'rgba(99,102,241,.6)':'var(--border)') + ';'
+            + 'border-radius:8px;padding:.85rem 1rem;cursor:pointer;transition:border-color .2s,background .15s;'
+            + 'display:flex;align-items:flex-start;gap:.75rem;position:relative;"'
+            + ' onmouseover="this.style.background=\'rgba(255,255,255,.04)\'" onmouseout="this.style.background=\'var(--background)\'"'
+            + '>'
+            + (hasNew ? '<span style="position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:#6366f1"></span>' : '')
+            + '<div style="flex:1;min-width:0">'
+            + '<div style="font-size:.75rem;font-family:monospace;color:#a78bfa;font-weight:700;margin-bottom:2px">#' + t.id + '</div>'
+            + '<div style="font-size:.875rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escSp(subject) + '</div>'
+            + '<div style="font-size:.75rem;color:var(--text-muted);margin-top:3px">' + d + (msgCount ? ' · ' + msgCount + ' Nachricht' + (msgCount!==1?'en':'') : '') + '</div>'
+            + '</div>'
+            + '<span style="flex-shrink:0;font-size:.7rem;background:rgba(99,102,241,.12);color:' + statusColor + ';padding:.2rem .6rem;border-radius:4px;font-weight:700;white-space:nowrap">' + statusLabel + '</span>'
+            + '</div>';
+        }).join('');
+        // Re-attach window reference for use in onclick
+        window._spTicketsCache = tickets;
+        window._spThreadsCache = results;
+      });
+    }
+
+    function escSp(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Open chat for a ticket ──
+    window.openTicketChat = function(idx) {
+      var tickets = window._spTicketsCache || getStoredTickets();
+      var t = tickets[idx];
+      if (!t) return;
+      _spActiveTicket = t;
+
+      // Mark seen with current count
+      var data = window._spThreadsCache && window._spThreadsCache[idx];
+      if (data && data.messages) setTicketSeen(t.id, data.messages.length);
+
+      // Highlight selected card
+      document.querySelectorAll('.sp-ticket-card').forEach(function(c){
+        c.style.borderColor = 'var(--border)';
+        c.style.background = 'var(--background)';
+      });
+      var card = document.querySelector('.sp-ticket-card[data-ticket-id="' + t.id + '"]');
+      if (card) card.style.borderColor = 'rgba(99,102,241,.6)';
+
+      // Remove unread dot on this card
+      var dot = card && card.querySelector('span[style*="border-radius:50%"]');
+      if (dot) dot.remove();
+
+      // Insert / update chat card
+      renderChatCard(t, data);
+
+      // Start polling
+      if (_spPollTimer) clearInterval(_spPollTimer);
+      _spPollTimer = setInterval(function() { pollTicketChat(t); }, 15000);
+    };
+
+    function renderChatCard(t, data) {
+      var grid = document.querySelector('#page-support .content-grid');
+      if (!grid) return;
+
+      var existing = document.getElementById('sp-chat-card');
+      if (existing) existing.remove();
+
+      var msgs = (data && data.messages) || [];
+      var status = (data && data.ticket && data.ticket.status) || 'open';
+      var subject = (data && data.ticket && data.ticket.subject) || ('#' + t.id);
+
+      var card = document.createElement('div');
+      card.id = 'sp-chat-card';
+      card.className = 'content-card';
+      card.style.cssText = 'display:flex;flex-direction:column;min-height:420px;';
+
+      card.innerHTML = '<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;flex-shrink:0">'
+        + '<button onclick="closeChatCard()" style="background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:0;line-height:1;margin-right:2px">&larr;</button>'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:.7rem;font-family:monospace;color:#a78bfa;font-weight:700">Ticket #' + t.id + '</div>'
+        + '<div style="font-size:.9rem;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escSp(subject) + '</div>'
+        + '</div>'
+        + '<span id="sp-chat-status" style="font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;background:rgba(99,102,241,.12);color:#a78bfa">' + ({open:'Offen',in_progress:'In Bearbeitung',resolved:'Gelöst',closed:'Geschlossen'}[status]||status) + '</span>'
+        + '</div>'
+        + '<div id="sp-chat-msgs" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 0;margin-bottom:12px;min-height:0;max-height:340px">'
+        + renderChatMsgs(msgs)
+        + '</div>'
+        + (status !== 'resolved' && status !== 'closed'
+          ? '<div style="display:flex;gap:8px;flex-shrink:0;border-top:1px solid var(--border);padding-top:12px">'
+            + '<textarea id="sp-chat-input" rows="2" placeholder="Antwort schreiben…" style="flex:1;resize:none;background:var(--background);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;padding:8px 12px;outline:none;font-family:inherit" onkeydown="if(event.key===\'Enter\'&&(event.ctrlKey||event.metaKey)){sendChatReply();return false}"></textarea>'
+            + '<button onclick="sendChatReply()" style="align-self:flex-end;padding:9px 16px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit">Senden</button>'
+            + '</div>'
+          : '<div style="text-align:center;font-size:.8rem;color:var(--text-muted);padding:.5rem">Ticket ist geschlossen.</div>');
+
+      grid.appendChild(card);
+      scrollChatToBottom();
+    }
+
+    function renderChatMsgs(msgs) {
+      if (!msgs.length) return '<div style="text-align:center;color:var(--text-muted);font-size:.85rem;padding:2rem">Noch keine Nachrichten.</div>';
+      return msgs.map(function(m) {
+        var isAdmin = m.sender === 'admin';
+        var d = new Date(m.created_at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+        return '<div style="display:flex;flex-direction:column;align-items:' + (isAdmin?'flex-start':'flex-end') + ';gap:2px">'
+          + '<div style="max-width:80%;padding:9px 13px;border-radius:' + (isAdmin?'4px 14px 14px 14px':'14px 4px 14px 14px') + ';'
+          + 'background:' + (isAdmin?'var(--surface)':'linear-gradient(135deg,#6366f1,#8b5cf6)') + ';'
+          + 'color:' + (isAdmin?'var(--text-primary)':'#fff') + ';font-size:.875rem;line-height:1.5;'
+          + 'border:1px solid ' + (isAdmin?'var(--border)':'transparent') + ';word-break:break-word">'
+          + escSp(m.message).replace(/\n/g,'<br>')
           + '</div>'
-          + '<span style="font-size:.72rem;background:rgba(99,102,241,.15);color:#a78bfa;padding:.2rem .6rem;border-radius:4px;font-weight:700">Offen</span>'
+          + '<div style="font-size:.68rem;color:var(--text-muted);padding:0 4px">' + (isAdmin?'🔧 Support':'Du') + ' · ' + d + '</div>'
           + '</div>';
       }).join('');
     }
+
+    function scrollChatToBottom() {
+      var el = document.getElementById('sp-chat-msgs');
+      if (el) setTimeout(function(){ el.scrollTop = el.scrollHeight; }, 50);
+    }
+
+    function pollTicketChat(t) {
+      fetch(HQ_SUPPORT + '/api/support/' + t.id + '/thread?token=' + t.token, { credentials:'omit' })
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(data) {
+          if (!data) return;
+          var msgs = data.messages || [];
+          var msgEl = document.getElementById('sp-chat-msgs');
+          if (msgEl) {
+            var wasAtBottom = msgEl.scrollHeight - msgEl.scrollTop - msgEl.clientHeight < 40;
+            msgEl.innerHTML = renderChatMsgs(msgs);
+            if (wasAtBottom) msgEl.scrollTop = msgEl.scrollHeight;
+          }
+          setTicketSeen(t.id, msgs.length);
+          // Update status badge
+          var statusEl = document.getElementById('sp-chat-status');
+          if (statusEl && data.ticket) {
+            var s = data.ticket.status;
+            statusEl.textContent = {open:'Offen',in_progress:'In Bearbeitung',resolved:'Gelöst',closed:'Geschlossen'}[s]||s;
+          }
+        }).catch(function(){});
+    }
+
+    window.closeChatCard = function() {
+      var c = document.getElementById('sp-chat-card');
+      if (c) c.remove();
+      if (_spPollTimer) { clearInterval(_spPollTimer); _spPollTimer = null; }
+      _spActiveTicket = null;
+      document.querySelectorAll('.sp-ticket-card').forEach(function(c){
+        c.style.borderColor = 'var(--border)';
+        c.style.background = 'var(--background)';
+      });
+    };
+
+    window.sendChatReply = function() {
+      if (!_spActiveTicket) return;
+      var input = document.getElementById('sp-chat-input');
+      var msg = input ? input.value.trim() : '';
+      if (!msg) return;
+      input.value = '';
+      input.disabled = true;
+
+      fetch(HQ_SUPPORT + '/api/support/' + _spActiveTicket.id + '/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        body: JSON.stringify({ token: _spActiveTicket.token, message: msg })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        if (data && data.success) { pollTicketChat(_spActiveTicket); }
+      })
+      .catch(function(){})
+      .finally(function(){ if(input) input.disabled = false; });
+    };
 
     function dashboardSubmitTicket() {
       var name    = (document.getElementById('sp-name').value    || '').trim();
@@ -1497,21 +1685,20 @@ curl -X POST http://localhost:8000/spellcheck \
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data && data.success) {
-          // Save to localStorage
           try {
-            var saved = JSON.parse(localStorage.getItem('fshq_tickets') || '[]');
+            var saved = getStoredTickets();
             saved.unshift({ id: data.ticket_id, token: data.user_token, ts: Date.now() });
-            localStorage.setItem('fshq_tickets', JSON.stringify(saved.slice(0, 20)));
+            saveStoredTickets(saved);
           } catch (ex) {}
           fb.style.color = '#4ade80';
-          fb.textContent = '\u2713 Ticket #' + data.ticket_id + ' erstellt! Wir melden uns bald.';
+          fb.textContent = '✓ Ticket #' + data.ticket_id + ' erstellt! Wir melden uns bald.';
           ['sp-name','sp-email','sp-subject','sp-msg'].forEach(function (id) { document.getElementById(id).value = ''; });
           loadMyTickets();
         } else { throw new Error(); }
       })
       .catch(function () {
         fb.style.color = '#f87171';
-        fb.textContent = 'Fehler beim Senden \u2013 bitte sp\u00E4ter erneut versuchen.';
+        fb.textContent = 'Fehler beim Senden – bitte später erneut versuchen.';
       })
       .finally(function () {
         btn.disabled = false;

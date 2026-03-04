@@ -323,13 +323,11 @@
       if (e.target === this) closePost();
     });
 
-    // Fetch
-    fetch(HQ + '/api/blog?site_id=' + SITE)
+    // Fetch (public endpoint - no auth needed)
+    fetch(HQ + '/api/blog/published?site_id=' + SITE)
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        allPosts = (Array.isArray(data) ? data : []).filter(function (p) {
-          return p.status === 'published';
-        });
+        allPosts = Array.isArray(data) ? data : [];
         buildTagFilter(allPosts);
         renderGrid(allPosts);
       })
