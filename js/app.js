@@ -1189,9 +1189,9 @@ function enhanceScrolling() {
 
 // Update active navigation link based on scroll position
 function updateActiveNavLink() {
-    // Don't update if dashboard wrapper is visible (not hidden)
+    // Don't update if dashboard is currently shown (has .active class)
     const dashWrapper = document.getElementById('dashboard-wrapper');
-    if (dashWrapper && !dashWrapper.classList.contains('hidden') && dashWrapper.style.display !== 'none') {
+    if (dashWrapper && dashWrapper.classList.contains('active')) {
         return;
     }
 

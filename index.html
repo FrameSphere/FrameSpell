@@ -1575,7 +1575,13 @@ curl -X POST http://localhost:8000/spellcheck \
             + '</div>'
           : '<div style="text-align:center;font-size:.8rem;color:var(--text-muted);padding:.5rem">Ticket ist geschlossen.</div>');
 
-      grid.appendChild(card);
+      // Insert BEFORE the full-width FAQ card so chat appears next to "Meine Tickets"
+      var faqCard = grid.querySelector('.content-card.full-width');
+      if (faqCard) {
+        grid.insertBefore(card, faqCard);
+      } else {
+        grid.appendChild(card);
+      }
       scrollChatToBottom();
     }
 
@@ -1710,7 +1716,6 @@ curl -X POST http://localhost:8000/spellcheck \
     <script src="js/app.js?v=2.0"></script>
     <script src="js/dashboard-new.js?v=2.0"></script>
     <script src="js/plan-modal.js"></script>
-    <script src="js/dashboard-fixes.js"></script>
     <script src="js/oauth.js"></script>
 </body>
 </html>
