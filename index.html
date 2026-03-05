@@ -17,7 +17,7 @@
     <meta property="og:url" content="https://framespell.pages.dev/">
     <meta property="og:title" content="Rechtschreibprüfung API – KI Spellcheck für Entwickler | FrameSpell">
     <meta property="og:description" content="Leistungsstarke KI-Rechtschreibprüfung API. Echtzeit-Korrektur, REST API, JSON Response. 99.2% Genauigkeit, &lt;1000ms. Kostenlos starten!">
-    <meta property="og:image" content="https://framespell.pages.dev/og-image.png">
+    <meta property="og:image" content="https://framespell.pages.dev/assets/og-image.png">
     <meta property="og:site_name" content="FrameSpell">
     <meta property="og:locale" content="de_DE">
     
@@ -27,7 +27,7 @@
     <meta name="twitter:url" content="https://framespell.pages.dev/">
     <meta name="twitter:title" content="Rechtschreibprüfung API – KI Spellcheck für Entwickler | FrameSpell">
     <meta name="twitter:description" content="KI-Rechtschreibprüfung API für Entwickler. REST API, JSON, 99.2% Genauigkeit. Kostenlos testen!">
-    <meta name="twitter:image" content="https://framespell.pages.dev/og-image.png">
+    <meta name="twitter:image" content="https://framespell.pages.dev/assets/og-image.png">
 
     <!-- Schema.org Structured Data -->
     <script type="application/ld+json">
@@ -77,7 +77,7 @@
         "Unter 1000ms Antwortzeit",
         "Deutsch, Englisch, Spanisch, Französisch"
       ],
-      "screenshot": "https://framespell.pages.dev/og-image.png"
+      "screenshot": "https://framespell.pages.dev/assets/og-image.png"
     }
     </script>
     <script type="application/ld+json">
@@ -121,10 +121,13 @@
     }
     </script>
     
-    <!-- Favicon -->
+    <!-- Favicon & PWA -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="alternate icon" href="favicon.ico">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="alternate icon" href="assets/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="msapplication-TileColor" content="#6366f1">
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard-new.css">
@@ -1731,10 +1734,10 @@ curl -X POST http://localhost:8000/spellcheck \
       function fmtDate(iso) {
         return new Date(iso).toLocaleDateString('de-DE', { day:'2-digit', month:'long', year:'numeric' });
       }
-      fetch(HQ + '/api/changelog?site_id=framespell')
+      fetch(HQ + '/api/changelog/published?site_id=framespell')
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          var pub = (Array.isArray(data) ? data : []).filter(function (e) { return e.published; });
+          var pub = Array.isArray(data) ? data : [];
           if (!pub.length) return;
           var e = pub[0];
           document.getElementById('lcl-icon').textContent  = TYPE_ICON[e.type] || '\uD83D\uDCCB';
