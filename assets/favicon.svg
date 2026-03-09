@@ -1,23 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#6366f1"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
     </linearGradient>
-    <clipPath id="rr">
+    <clipPath id="rounded">
       <rect width="100" height="100" rx="22" ry="22"/>
     </clipPath>
   </defs>
 
   <!-- Background -->
-  <rect width="100" height="100" rx="22" ry="22" fill="url(#g)"/>
+  <rect width="100" height="100" rx="22" ry="22" fill="url(#bg-grad)"/>
 
-  <!-- Text lines -->
-  <rect x="14" y="27" width="72" height="10" rx="5" fill="rgba(255,255,255,0.9)"/>
-  <rect x="14" y="45" width="48" height="10" rx="5" fill="rgba(255,255,255,0.9)"/>
-  <rect x="14" y="63" width="72" height="10" rx="5" fill="rgba(255,255,255,0.9)"/>
+  <!-- Capital A (left, clean geometric) -->
+  <!-- Left leg -->
+  <polygon points="44,15 14,69 23,69 44,24" fill="rgba(255,255,255,0.96)"/>
+  <!-- Right leg -->
+  <polygon points="44,15 74,69 65,69 44,24" fill="rgba(255,255,255,0.96)"/>
+  <!-- Crossbar -->
+  <rect x="24" y="47" width="40" height="8" rx="4" fill="rgba(255,255,255,0.96)"/>
 
-  <!-- Green checkmark circle -->
-  <circle cx="67" cy="62" r="20" fill="#10b981"/>
-  <polyline points="57,62 63,68 77,54" stroke="white" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Lowercase 'a' ring (right side, smaller) -->
+  <circle cx="73" cy="38" r="13" fill="rgba(255,255,255,0.96)"/>
+  <!-- inner punch hole -->
+  <circle cx="73" cy="38" r="7" fill="#6557e8"/>
+  <!-- tail stroke -->
+  <rect x="83" y="38" width="7.5" height="14" rx="3.5" fill="rgba(255,255,255,0.96)"/>
+
+  <!-- Subtle text lines (bottom, spellcheck context) -->
+  <rect x="13" y="76" width="42" height="5" rx="2.5" fill="rgba(255,255,255,0.22)"/>
+  <rect x="13" y="84" width="30" height="5" rx="2.5" fill="rgba(255,255,255,0.15)"/>
+
+  <!-- AI Sparkle star (gold, top-right) -->
+  <polygon points="80,17 82.2,22.2 88,22 83.5,25.5 85.2,31 80,27.8 74.8,31 76.5,25.5 72,22 77.8,22.2"
+           fill="#fbbf24"/>
+
+  <!-- Green checkmark circle (bottom-right, overlaps) -->
+  <circle cx="81" cy="79" r="16" fill="#10b981"/>
+  <!-- white ring -->
+  <circle cx="81" cy="79" r="17.5" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+  <!-- checkmark -->
+  <polyline points="72,79 78,85 91,71"
+            fill="none" stroke="white" stroke-width="5"
+            stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
