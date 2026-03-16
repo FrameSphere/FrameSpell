@@ -80,20 +80,9 @@ function openDashboardNew() {
         document.body.style.overflow = 'hidden';
         loadDashboardData();
         
-        // Start auto-refresh (every 5 seconds)
-        if (window.dashboardRefreshInterval) {
-            clearInterval(window.dashboardRefreshInterval);
-        }
-        
-        window.dashboardRefreshInterval = setInterval(() => {
-            if (currentUser && authToken) {
-                loadUserProfile().then(() => {
-                    updateDashboardUI();
-                }).catch(err => {
-                    console.error('Error refreshing dashboard:', err);
-                });
-            }
-        }, 5000);
+        // Kein Interval mehr – Usage wird direkt aus /spellcheck-Antworten aktualisiert
+        // Fallback-Poll (30s) über startUsagePolling() in app.js
+        if (typeof startUsagePolling === 'function') startUsagePolling();
     }
 }
 
@@ -108,11 +97,8 @@ function closeDashboardNew() {
         document.body.style.overflow = 'auto';
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
-        // Stop auto-refresh
-        if (window.dashboardRefreshInterval) {
-            clearInterval(window.dashboardRefreshInterval);
-            window.dashboardRefreshInterval = null;
-        }
+        // Poll stoppen
+        if (typeof stopUsagePolling === 'function') stopUsagePolling();
     }
 }
 
@@ -230,6 +216,34 @@ function loadApiKeysData() {
     const currentApiKey = document.getElementById('current-api-key');
     if (currentApiKey && currentUser.api_key) {
         currentApiKey.value = currentUser.api_key;
+    }
+}
+
+// Usage-UI direkt aus rate_limit-Objekt aktualisieren (kein /me nötig)
+function loadUsageDataFromRateLimit(rateLimit) {
+    if (!rateLimit) return;
+    
+    const used      = rateLimit.used      || 0;
+    const remaining = rateLimit.remaining || 0;
+    const limit     = rateLimit.limit     || 20;
+    const pct       = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
+    
+    const usageTodayCount     = document.getElementById('usage-today-count');
+    const usageRemainingCount = document.getElementById('usage-remaining-count');
+    const usagePercentage     = document.getElementById('usage-percentage');
+    const usageProgressFill   = document.getElementById('usage-progress-fill');
+    const profileRequestsToday = document.getElementById('profile-requests-today');
+    
+    if (usageTodayCount)      usageTodayCount.textContent     = used;
+    if (usageRemainingCount)  usageRemainingCount.textContent = remaining;
+    if (usagePercentage)      usagePercentage.textContent     = `${pct.toFixed(0)}%`;
+    if (usageProgressFill)    usageProgressFill.style.width   = `${pct}%`;
+    if (profileRequestsToday) profileRequestsToday.textContent = used;
+    
+    if (rateLimit.resetAt && rateLimit.resetAt > Date.now() && used >= limit) {
+        const secLeft = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
+        const progressNote = document.getElementById('progress-note-text');
+        if (progressNote) progressNote.textContent = `Limit erreicht – Reset in ${secLeft}s`;
     }
 }
 
@@ -386,8 +400,13 @@ async function runUsageTest() {
             testOutput.classList.remove('hidden');
         }
         
-        await loadUserProfile();
-        loadUsageData();
+        // Usage direkt aus Spellcheck-Antwort aktualisieren – kein extra /me Request
+        if (result.rate_limit) {
+            if (typeof updateUsageFromRateLimit === 'function') {
+                updateUsageFromRateLimit(result.rate_limit);
+            }
+            loadUsageDataFromRateLimit(result.rate_limit);
+        }
         
         showToast('Test erfolgreich!', 'success');
         
