@@ -231,7 +231,8 @@ async function spellcheck(text, language = 'de', isDemo = false) {
         corrected_text: data.corrected, 
         original: text,
         actual_processing_time: data.processing_time || processingTime,
-        tokens_used: data.tokens_used || Math.ceil(text.length / 4)
+        tokens_used: data.tokens_used || Math.ceil(text.length / 4),
+        rate_limit: data.rate_limit || null  // Weitergeben für direktes UI-Update
     };
 }
 
@@ -393,18 +394,67 @@ function showDashboard() {
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // Start auto-refresh for usage stats (every 5 seconds)
-    if (window.dashboardRefreshInterval) {
-        clearInterval(window.dashboardRefreshInterval);
+    // Starte smarten Fallback-Poll:
+    // Aktualisiert Usage nur wenn Tab sichtbar ist, alle 30s, nur via /usage/quick (kein DB-Join)
+    // Hauptpfad: wird von handleApiTest() direkt getriggert — kein extra Request nötig
+    startUsagePolling();
+}
+
+// ── Usage aus Rate-Limit-Daten direkt aktualisieren (kein /me nötig) ────────────────
+function updateUsageFromRateLimit(rateLimit) {
+    if (!rateLimit) return;
+    
+    if (elements.usageToday) {
+        elements.usageToday.textContent = rateLimit.used || 0;
+    }
+    if (elements.usageRemaining) {
+        elements.usageRemaining.textContent = rateLimit.remaining || 0;
+    }
+    if (elements.usageChartFill) {
+        const pct = rateLimit.limit > 0 ? (rateLimit.used / rateLimit.limit) * 100 : 0;
+        elements.usageChartFill.style.width = `${Math.min(pct, 100)}%`;
     }
     
-    window.dashboardRefreshInterval = setInterval(() => {
-        if (currentUser && authToken && !elements.dashboard?.classList.contains('hidden')) {
-            loadUserProfile().catch(err => {
-                console.error('Error refreshing dashboard:', err);
-            });
+    // Reset-Countdown anzeigen wenn vorhanden
+    if (rateLimit.resetAt && rateLimit.resetAt > Date.now()) {
+        const secLeft = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
+        const progressNote = document.getElementById('progress-note-text');
+        if (progressNote && rateLimit.used >= rateLimit.limit) {
+            progressNote.textContent = `Limit erreicht – Reset in ${secLeft}s`;
         }
-    }, 5000); // Refresh every 5 seconds
+    }
+}
+
+// ── Smarter Fallback-Poll: nur wenn Tab sichtbar + Dashboard offen ─────────────
+function startUsagePolling() {
+    stopUsagePolling();
+    
+    window._usagePollInterval = setInterval(async () => {
+        // Nur pollen wenn: eingeloggt, Dashboard sichtbar, Tab aktiv
+        if (!authToken || !currentUser) return;
+        if (elements.dashboard?.classList.contains('hidden')) return;
+        if (document.visibilityState !== 'visible') return;
+        
+        try {
+            const res = await fetch(`${API_BASE_URL}/usage/quick`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            if (!res.ok) return; // Fehler still ignorieren
+            const data = await res.json();
+            if (data?.data?.rate_limit) {
+                updateUsageFromRateLimit(data.data.rate_limit);
+            }
+        } catch (_) {
+            // Netzwerkfehler still ignorieren – kein console.error (verhindert Tracking-Loop)
+        }
+    }, 30000); // 30s ist völlig ausreichend als Fallback
+}
+
+function stopUsagePolling() {
+    if (window._usagePollInterval) {
+        clearInterval(window._usagePollInterval);
+        window._usagePollInterval = null;
+    }
 }
 
 function showMainContent() {
@@ -417,11 +467,8 @@ function showMainContent() {
         elements.dashboard.classList.add('hidden');
     }
     
-    // Stop auto-refresh when leaving dashboard
-    if (window.dashboardRefreshInterval) {
-        clearInterval(window.dashboardRefreshInterval);
-        window.dashboardRefreshInterval = null;
-    }
+    // Poll stoppen wenn Dashboard verlassen
+    stopUsagePolling();
     
     // Update navigation active state based on current scroll position
     setTimeout(() => {
@@ -858,8 +905,10 @@ async function handleApiTest() {
         
         showElement(elements.testOutput);
         
-        // Refresh user profile to update usage stats
-        await loadUserProfile();
+        // Usage direkt aus der Spellcheck-Antwort aktualisieren – kein extra /me Request!
+        if (result.rate_limit) {
+            updateUsageFromRateLimit(result.rate_limit);
+        }
         
     } catch (error) {
         elements.testResult.textContent = 'Fehler: ' + error.message;
