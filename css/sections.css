@@ -15,30 +15,33 @@
 }
 
 .pricing-card {
-    background: var(--surface);
-    border: 2px solid var(--border);
+    background: linear-gradient(145deg, rgba(13,22,38,0.95) 0%, rgba(9,16,30,0.9) 100%);
+    border: 1px solid var(--border-light);
     border-radius: 1.5rem;
     padding: 2.5rem;
     position: relative;
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
+    backdrop-filter: blur(10px);
 }
 
 .pricing-card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--shadow-xl);
-    border-color: var(--primary-color);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(99,102,241,0.12);
+    border-color: rgba(99,102,241,0.5);
 }
 
 .pricing-card.featured {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 1px var(--primary-color);
-    transform: scale(1.05);
+    border-color: rgba(99,102,241,0.6);
+    background: linear-gradient(145deg, rgba(99,102,241,0.08) 0%, rgba(13,22,38,0.95) 60%);
+    box-shadow: 0 0 40px rgba(99,102,241,0.2), inset 0 1px 0 rgba(99,102,241,0.2);
+    transform: scale(1.04);
 }
 
 .pricing-card.featured:hover {
-    transform: scale(1.08) translateY(-10px);
+    transform: scale(1.06) translateY(-8px);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 50px rgba(99,102,241,0.3);
 }
 
 .pricing-badge {
@@ -134,17 +137,18 @@
 }
 
 .doc-card {
-    background: var(--background);
-    border: 1px solid var(--border);
+    background: linear-gradient(145deg, rgba(9,16,30,0.9) 0%, rgba(6,12,24,0.95) 100%);
+    border: 1px solid var(--border-light);
     border-radius: 1rem;
     padding: 2rem;
     transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
 }
 
 .doc-card:hover {
-    border-color: var(--primary-color);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-5px);
+    border-color: rgba(99,102,241,0.5);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 20px rgba(99,102,241,0.1);
+    transform: translateY(-4px);
 }
 
 .doc-icon {
