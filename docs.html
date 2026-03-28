@@ -1,11 +1,479 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FrameSpell Docs</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dokumentation – FrameSpell Rechtschreibe API</title>
+  <meta name="description" content="Vollständige API-Dokumentation der FrameSpell Rechtschreibprüfung: Endpunkte, Parameter, Antwortformate, Rate Limits, Authentifizierung und Codebeispiele.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://framespell.pages.dev/docs.html">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .docs-hero {
+      padding: 7rem 0 3.5rem;
+      background:
+        radial-gradient(ellipse at 60% 0%, rgba(99,102,241,.15) 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 80%, rgba(6,182,212,.07) 0%, transparent 45%);
+      text-align: center;
+    }
+    .docs-hero h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: .75rem; letter-spacing: -.03em; }
+    .docs-hero p  { color: var(--text-secondary); font-size: 1.1rem; max-width: 560px; margin: 0 auto 2rem; line-height: 1.7; }
+
+    .docs-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 6rem;
+    }
+    @media (max-width: 860px) {
+      .docs-layout { grid-template-columns: 1fr; }
+      .docs-sidebar { display: none; }
+    }
+
+    /* Sidebar */
+    .docs-sidebar {
+      position: sticky;
+      top: 80px;
+      align-self: start;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .docs-sidebar h3 {
+      font-size: .75rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: .85rem;
+    }
+    .docs-sidebar a {
+      display: block; font-size: .85rem; color: var(--text-secondary);
+      text-decoration: none; padding: .3rem 0 .3rem .75rem;
+      border-left: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+    .docs-sidebar a:hover { color: #a78bfa; border-left-color: #6366f1; }
+    .docs-sidebar .sb-sub { padding-left: 1.5rem; font-size: .8rem; color: var(--text-muted); }
+    .docs-sidebar .sb-sub:hover { color: #a78bfa; }
+    .docs-sidebar hr { border: none; border-top: 1px solid var(--border); margin: .75rem 0; }
+
+    /* Content */
+    .docs-content h2 {
+      font-size: 1.6rem; font-weight: 800; letter-spacing: -.025em;
+      margin: 3rem 0 .9rem; padding-top: .5rem;
+      border-top: 1px solid var(--border-light);
+      scroll-margin-top: 90px;
+    }
+    .docs-content h2:first-of-type { border-top: none; margin-top: 0; }
+    .docs-content h3 {
+      font-size: 1.05rem; font-weight: 700; color: #a78bfa;
+      margin: 1.75rem 0 .6rem;
+      scroll-margin-top: 90px;
+    }
+    .docs-content p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; }
+    .docs-content ul, .docs-content ol {
+      color: var(--text-secondary); padding-left: 1.4rem;
+      margin-bottom: 1rem; line-height: 1.9;
+    }
+    .docs-content code {
+      background: rgba(99,102,241,.12); color: #a78bfa;
+      padding: .15rem .45rem; border-radius: 4px; font-size: .88em;
+      font-family: 'Courier New', monospace;
+    }
+    .docs-content pre {
+      background: #080f1e;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 1.25rem 1.4rem;
+      overflow-x: auto;
+      margin: .75rem 0 1.5rem;
+      font-size: .83rem;
+      line-height: 1.7;
+      color: #e2e8f0;
+      position: relative;
+    }
+    .docs-content pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* Code block with label */
+    .code-wrap { position: relative; }
+    .code-label {
+      position: absolute; top: .65rem; right: .75rem;
+      font-size: .68rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--text-muted);
+      background: rgba(255,255,255,.05); padding: .2rem .55rem; border-radius: 4px;
+    }
+
+    /* Callout */
+    .callout {
+      background: rgba(99,102,241,.08); border-left: 3px solid #6366f1;
+      border-radius: 0 8px 8px 0; padding: 1rem 1.2rem;
+      margin: 1.25rem 0; font-size: .9rem; color: var(--text-secondary);
+    }
+    .callout.warn { background: rgba(245,158,11,.08); border-left-color: #f59e0b; }
+    .callout.success { background: rgba(16,185,129,.08); border-left-color: #10b981; }
+    .callout strong { color: var(--text-primary); }
+
+    /* Param / Response tables */
+    .docs-content table {
+      width: 100%; border-collapse: collapse; margin: .75rem 0 1.5rem;
+      font-size: .875rem;
+    }
+    .docs-content th {
+      background: rgba(99,102,241,.08); text-align: left;
+      padding: .7rem 1rem; border: 1px solid var(--border-light);
+      color: #a78bfa; font-weight: 700;
+    }
+    .docs-content td {
+      padding: .65rem 1rem; border: 1px solid var(--border-light);
+      color: var(--text-secondary); vertical-align: top;
+    }
+    .docs-content tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+
+    /* Endpoint pill */
+    .endpoint {
+      display: inline-flex; align-items: center; gap: .65rem;
+      background: rgba(6,182,212,.08); border: 1px solid rgba(6,182,212,.3);
+      border-radius: 8px; padding: .65rem 1.1rem;
+      font-family: 'Courier New', monospace; font-size: .9rem;
+      margin: .5rem 0 1.25rem; color: var(--text-primary);
+    }
+    .method-badge {
+      background: linear-gradient(135deg,#6366f1,#8b5cf6);
+      color: #fff; font-size: .72rem; font-weight: 800;
+      padding: .2rem .55rem; border-radius: 5px;
+      font-family: inherit; letter-spacing: .05em;
+    }
+
+    /* Status code badges */
+    .status { display: inline-block; padding: .2rem .6rem; border-radius: 5px; font-family: monospace; font-size: .85rem; font-weight: 700; }
+    .s200 { background: rgba(16,185,129,.15); color: #34d399; }
+    .s400 { background: rgba(245,158,11,.15); color: #fbbf24; }
+    .s401 { background: rgba(239,68,68,.15); color: #f87171; }
+    .s429 { background: rgba(249,115,22,.15); color: #fb923c; }
+    .s500 { background: rgba(239,68,68,.1); color: #fca5a5; }
+
+    /* Quick-link cards */
+    .quick-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem; margin: 1.5rem 0;
+    }
+    .quick-card {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 12px; padding: 1.3rem;
+      text-decoration: none; display: block;
+      transition: border-color .2s, transform .2s;
+    }
+    .quick-card:hover { border-color: rgba(99,102,241,.5); transform: translateY(-3px); }
+    .quick-card .qc-icon { font-size: 1.6rem; margin-bottom: .5rem; }
+    .quick-card .qc-title { font-size: .95rem; font-weight: 700; color: var(--text-primary); margin-bottom: .25rem; }
+    .quick-card .qc-desc { font-size: .8rem; color: var(--text-muted); line-height: 1.5; }
+  </style>
 </head>
 <body>
-    
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <i class="fas fa-spell-check"></i>
+        <span>FrameSpell</span>
+      </a>
+      <div class="nav-menu">
+        <a href="index.html#home"    class="nav-link">Home</a>
+        <a href="index.html#pricing" class="nav-link">Preise</a>
+        <a href="docs.html"          class="nav-link active">Docs</a>
+        <a href="index.html#demo"    class="nav-link">Demo</a>
+        <a href="faq.html"           class="nav-link">FAQ</a>
+        <a href="changelog.html"     class="nav-link">Changelog</a>
+        <a href="blog.html"          class="nav-link">Blog</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="docs-hero">
+    <div class="container">
+      <h1>API <span class="gradient-text">Dokumentation</span></h1>
+      <p>Alles was Sie brauchen, um die FrameSpell Rechtschreibprüfung API in Ihre Anwendung zu integrieren.</p>
+      <div class="quick-cards" style="max-width:860px;margin:0 auto;">
+        <a href="#quickstart" class="quick-card">
+          <div class="qc-icon">🚀</div>
+          <div class="qc-title">Quick Start</div>
+          <div class="qc-desc">In 5 Minuten zum ersten API-Call</div>
+        </a>
+        <a href="#endpunkte" class="quick-card">
+          <div class="qc-icon">🔌</div>
+          <div class="qc-title">Endpunkte</div>
+          <div class="qc-desc">Alle verfügbaren API-Routen</div>
+        </a>
+        <a href="#authentifizierung" class="quick-card">
+          <div class="qc-icon">🔑</div>
+          <div class="qc-title">Authentifizierung</div>
+          <div class="qc-desc">API Keys richtig verwenden</div>
+        </a>
+        <a href="#fehler" class="quick-card">
+          <div class="qc-icon">⚠️</div>
+          <div class="qc-title">Fehler &amp; Status Codes</div>
+          <div class="qc-desc">Fehlerbehandlung &amp; Retry-Logik</div>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+
+    <!-- Sidebar -->
+    <aside class="docs-sidebar">
+      <h3>Inhalt</h3>
+      <a href="#quickstart">Quick Start</a>
+      <a href="#authentifizierung">Authentifizierung</a>
+      <a href="#endpunkte">Endpunkte</a>
+      <a href="#spellcheck" class="sb-sub">POST /spellcheck</a>
+      <a href="#request" class="sb-sub">Request-Parameter</a>
+      <a href="#response" class="sb-sub">Response-Format</a>
+      <hr>
+      <a href="#ratelimits">Rate Limits</a>
+      <a href="#fehler">Fehler &amp; Status Codes</a>
+      <a href="#sprachen">Sprachen</a>
+      <a href="#codebeispiele">Codebeispiele</a>
+      <a href="#codebeispiele-js" class="sb-sub">JavaScript</a>
+      <a href="#codebeispiele-py" class="sb-sub">Python</a>
+      <a href="#codebeispiele-curl" class="sb-sub">cURL</a>
+      <hr>
+      <a href="guide-integration.html" style="color:#6366f1;">→ Integration Guide</a>
+      <a href="faq.html" style="color:#6366f1;">→ FAQ</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="docs-content">
+
+      <h2 id="quickstart">Quick Start</h2>
+      <p>Mit drei Schritten zur ersten Rechtschreibkorrektur:</p>
+      <ol>
+        <li><strong>Registrieren</strong> und einen kostenlosen Account anlegen</li>
+        <li><strong>API Key</strong> im Dashboard unter <em>API Keys</em> generieren</li>
+        <li><strong>Request senden</strong> – fertig</li>
+      </ol>
+
+      <div class="code-wrap">
+        <span class="code-label">cURL</span>
+        <pre><code>curl -X POST https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck \
+  -H "X-API-Key: IHR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Das ist ein Beispeil text", "language": "de"}'</code></pre>
+      </div>
+
+      <div class="callout success">
+        <strong>✅ Antwort:</strong> Sie erhalten sofort den korrigierten Text als JSON zurück – keine weiteren Setup-Schritte nötig.
+      </div>
+
+      <h2 id="authentifizierung">Authentifizierung</h2>
+      <p>Jeder API-Request benötigt einen gültigen API Key, der im HTTP-Header <code>X-API-Key</code> übermittelt wird.</p>
+
+      <div class="code-wrap">
+        <span class="code-label">Header</span>
+        <pre><code>X-API-Key: fs_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Content-Type: application/json</code></pre>
+      </div>
+
+      <div class="callout warn">
+        <strong>⚠ Sicherheit:</strong> API Keys niemals im Frontend/Browser-JavaScript oder in Git-Repositories speichern. Immer Umgebungsvariablen verwenden.
+      </div>
+
+      <h3>API Key generieren</h3>
+      <ol>
+        <li>Auf der <a href="index.html" style="color:#a78bfa;">Startseite</a> registrieren und anmelden</li>
+        <li>Im Dashboard zu <strong>API Keys</strong> navigieren</li>
+        <li>Auf <em>Neu generieren</em> klicken – den Key sofort kopieren (wird nur einmal angezeigt)</li>
+      </ol>
+
+      <h2 id="endpunkte">Endpunkte</h2>
+
+      <h3 id="spellcheck">Rechtschreibkorrektur</h3>
+      <div class="endpoint">
+        <span class="method-badge">POST</span>
+        https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck
+      </div>
+
+      <h3 id="request">Request-Parameter</h3>
+      <table>
+        <thead><tr><th>Parameter</th><th>Typ</th><th>Pflicht</th><th>Beschreibung</th></tr></thead>
+        <tbody>
+          <tr><td><code>text</code></td><td>string</td><td>✓</td><td>Der zu korrigierende Text (max. 5.000 Zeichen)</td></tr>
+          <tr><td><code>language</code></td><td>string</td><td>✓</td><td>Sprachcode: <code>de</code> (weitere folgen)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-wrap">
+        <span class="code-label">Request Body</span>
+        <pre><code>{
+  "text": "Das ist ein Beispeil text mit felern",
+  "language": "de"
+}</code></pre>
+      </div>
+
+      <h3 id="response">Response-Format</h3>
+      <p>Erfolgreiche Antwort (<code>HTTP 200</code>):</p>
+
+      <div class="code-wrap">
+        <span class="code-label">JSON Response</span>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "corrected":       "Das ist ein Beispieltext mit Fehlern",
+    "original":        "Das ist ein Beispeil text mit felern",
+    "processing_time": 143.7,
+    "tokens_used":     8
+  }
+}</code></pre>
+      </div>
+
+      <table>
+        <thead><tr><th>Feld</th><th>Typ</th><th>Beschreibung</th></tr></thead>
+        <tbody>
+          <tr><td><code>corrected</code></td><td>string</td><td>Korrigierter Text</td></tr>
+          <tr><td><code>original</code></td><td>string</td><td>Originaltext wie eingereicht</td></tr>
+          <tr><td><code>processing_time</code></td><td>number</td><td>Verarbeitungszeit in Millisekunden</td></tr>
+          <tr><td><code>tokens_used</code></td><td>number</td><td>Verbrauchte Tokens (für Billing relevant)</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="ratelimits">Rate Limits</h2>
+      <table>
+        <thead><tr><th>Plan</th><th>Limit</th><th>Überschreitung</th></tr></thead>
+        <tbody>
+          <tr><td>Free</td><td>20 Anfragen / Minute</td><td>€0,009 pro weitere Anfrage</td></tr>
+          <tr><td>Professional</td><td>100 Anfragen / Minute</td><td>Flatrate – keine Zusatzkosten</td></tr>
+          <tr><td>Enterprise</td><td>Unbegrenzt</td><td>Individuell verhandelt</td></tr>
+        </tbody>
+      </table>
+
+      <p>Bei Überschreitung des Limits antwortet die API mit <code>HTTP 429</code> und einem <code>retry_after</code> Feld (Sekunden):</p>
+      <div class="code-wrap">
+        <pre><code>{
+  "success": false,
+  "error": "Rate limit exceeded",
+  "retry_after": 8
+}</code></pre>
+      </div>
+
+      <h2 id="fehler">Fehler &amp; Status Codes</h2>
+      <table>
+        <thead><tr><th>Status</th><th>Bedeutung</th><th>Empfohlene Reaktion</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="status s200">200</span></td>
+            <td>Erfolg</td>
+            <td>Ergebnis verarbeiten</td>
+          </tr>
+          <tr>
+            <td><span class="status s400">400</span></td>
+            <td>Bad Request – fehlerhafte Anfrage</td>
+            <td>Request-Body prüfen, kein Retry</td>
+          </tr>
+          <tr>
+            <td><span class="status s401">401</span></td>
+            <td>Unauthorized – ungültiger API Key</td>
+            <td>Key prüfen, kein Retry</td>
+          </tr>
+          <tr>
+            <td><span class="status s429">429</span></td>
+            <td>Rate Limit überschritten</td>
+            <td>Exponential Backoff + Retry</td>
+          </tr>
+          <tr>
+            <td><span class="status s500">500</span></td>
+            <td>Server Error</td>
+            <td>Einmal nach 2s erneut versuchen</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="sprachen">Unterstützte Sprachen</h2>
+      <table>
+        <thead><tr><th>Sprache</th><th>Code</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>🇩🇪 Deutsch</td><td><code>de</code></td><td style="color:#10b981;font-weight:700;">✓ Verfügbar</td></tr>
+          <tr><td>🇬🇧 Englisch</td><td><code>en</code></td><td style="color:#f59e0b;">⏳ In Entwicklung</td></tr>
+          <tr><td>🇪🇸 Spanisch</td><td><code>es</code></td><td style="color:#f59e0b;">⏳ In Entwicklung</td></tr>
+          <tr><td>🇫🇷 Französisch</td><td><code>fr</code></td><td style="color:#f59e0b;">⏳ In Entwicklung</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="codebeispiele">Codebeispiele</h2>
+
+      <h3 id="codebeispiele-js">JavaScript (fetch)</h3>
+      <div class="code-wrap">
+        <span class="code-label">JavaScript</span>
+        <pre><code>const response = await fetch(
+  'https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck',
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': process.env.FRAMESPELL_API_KEY
+    },
+    body: JSON.stringify({ text: 'Beispeil text', language: 'de' })
+  }
+);
+
+const { success, data } = await response.json();
+if (success) console.log(data.corrected);</code></pre>
+      </div>
+
+      <h3 id="codebeispiele-py">Python</h3>
+      <div class="code-wrap">
+        <span class="code-label">Python</span>
+        <pre><code>import os, requests
+
+resp = requests.post(
+    'https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck',
+    json={'text': 'Beispeil text', 'language': 'de'},
+    headers={'X-API-Key': os.environ['FRAMESPELL_API_KEY']},
+    timeout=10
+)
+result = resp.json()
+print(result['data']['corrected'])</code></pre>
+      </div>
+
+      <h3 id="codebeispiele-curl">cURL</h3>
+      <div class="code-wrap">
+        <span class="code-label">cURL</span>
+        <pre><code>curl -X POST https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck \
+  -H "X-API-Key: IHR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Beispeil text", "language": "de"}'</code></pre>
+      </div>
+
+      <div class="callout" style="margin-top:2rem;">
+        <strong>📖 Mehr Details?</strong> Der <a href="guide-integration.html" style="color:#a78bfa;">Integration Guide</a> erklärt Error Handling, Batch-Verarbeitung, TypeScript-Typen und Next.js-Integration ausführlich.
+      </div>
+
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="index.html">Home</a><span class="footer-divider">&bull;</span>
+          <a href="faq.html">FAQ</a><span class="footer-divider">&bull;</span>
+          <a href="changelog.html">Changelog</a><span class="footer-divider">&bull;</span>
+          <a href="blog.html">Blog</a><span class="footer-divider">&bull;</span>
+          <a href="docs.html">Docs</a><span class="footer-divider">&bull;</span>
+          <a href="index.html#pricing">Preise</a><span class="footer-divider">&bull;</span>
+          <a href="impressum.html">Impressum</a><span class="footer-divider">&bull;</span>
+          <a href="datenschutz.html">Datenschutz</a><span class="footer-divider">&bull;</span>
+          <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
+        </div>
+        <div class="footer-powered">&copy; 2026 FrameSpell &mdash; Powered by <a href="https://frame-sphere.vercel.app/" target="_blank" rel="noopener">FrameSphere</a></div>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
