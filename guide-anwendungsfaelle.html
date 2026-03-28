@@ -100,15 +100,13 @@
 <body>
   <nav class="navbar">
     <div class="nav-container">
-      <div class="nav-logo">
-        <a href="index.html" style="display:flex;align-items:center;gap:.5rem;text-decoration:none;color:inherit;">
-          <i class="fas fa-spell-check"></i><span>Rechtschreibe API</span>
-        </a>
-      </div>
+      <a href="index.html" class="nav-logo">
+        <i class="fas fa-spell-check"></i><span>FrameSpell</span>
+      </a>
       <div class="nav-menu">
         <a href="index.html#home"    class="nav-link">Home</a>
         <a href="index.html#pricing" class="nav-link">Preise</a>
-        <a href="index.html#docs"    class="nav-link">Dokumentation</a>
+        <a href="docs.html"          class="nav-link">Docs</a>
         <a href="index.html#demo"    class="nav-link">Demo</a>
         <a href="faq.html"           class="nav-link">FAQ</a>
         <a href="changelog.html"     class="nav-link">Changelog</a>
@@ -497,14 +495,17 @@ document.querySelector('#feedback').innerHTML = feedback;
     <div class="container">
       <div class="footer-content">
         <div class="footer-links">
+          <a href="index.html">Home</a><span class="footer-divider">•</span>
           <a href="faq.html">FAQ</a><span class="footer-divider">•</span>
           <a href="changelog.html">Changelog</a><span class="footer-divider">•</span>
           <a href="blog.html">Blog</a><span class="footer-divider">•</span>
           <a href="docs.html">Docs</a><span class="footer-divider">•</span>
+          <a href="index.html#pricing">Preise</a><span class="footer-divider">•</span>
           <a href="impressum.html">Impressum</a><span class="footer-divider">•</span>
-          <a href="datenschutz.html">Datenschutz</a>
+          <a href="datenschutz.html">Datenschutz</a><span class="footer-divider">•</span>
+          <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
         </div>
-        <div class="footer-powered">© 2026 FrameSpell. Powered by <a href="https://frame-sphere.vercel.app/" target="_blank" rel="noopener">FrameSphere</a></div>
+        <div class="footer-powered">© 2026 FrameSpell — Powered by <a href="https://frame-sphere.vercel.app/" target="_blank" rel="noopener">FrameSphere</a></div>
       </div>
     </div>
   </footer>
