@@ -136,6 +136,11 @@
 
     .fade-in { animation: fadeInBl .35s ease both; }
     @keyframes fadeInBl { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+    /* Push footer to bottom when content is short */
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; }
+    .bl-section { flex: 1; }
   </style>
 </head>
 <body>
