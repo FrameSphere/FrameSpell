@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upgrade zu Professional - Rechtschreibe API</title>
+    <title>Upgrade zu Professional – Rechtschreibe API</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/payment.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation (simplified) -->
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
@@ -31,7 +31,7 @@
         <div class="payment-container">
             <div class="payment-header">
                 <h1>Upgrade zu <span class="gradient-text">Professional</span></h1>
-                <p>Erweitern Sie Ihre API-Nutzung mit mehr Features und höheren Limits</p>
+                <p>Erweitern Sie Ihre API-Nutzung mit höheren Limits und mehr Features</p>
             </div>
 
             <div class="payment-grid">
@@ -44,27 +44,25 @@
 
                     <!-- Billing Toggle -->
                     <div class="billing-toggle">
-                        <div class="billing-option active" id="monthly-label">
-                            Monatlich
-                        </div>
+                        <div class="billing-option active" id="monthly-label">Monatlich</div>
                         <div class="toggle-switch" id="billing-toggle">
                             <div class="toggle-slider"></div>
                         </div>
                         <div class="billing-option" id="yearly-label">
                             Jährlich
-                            <span class="save-badge">2 Monate gratis</span>
+                            <span class="save-badge">17% günstiger</span>
                         </div>
                     </div>
 
                     <!-- Plan Options -->
                     <div class="plan-options">
-                        <!-- Monthly Plan -->
-                        <div class="plan-option selected" data-plan="monthly" id="plan-monthly">
+                        <!-- Monthly -->
+                        <div class="plan-option selected" id="plan-monthly">
                             <div class="plan-option-content">
                                 <div class="plan-option-header">
                                     <div class="plan-radio"></div>
                                     <div>
-                                        <div class="plan-name">Professional - Monatlich</div>
+                                        <div class="plan-name">Professional – Monatlich</div>
                                         <div class="plan-description">Monatliche Abrechnung, jederzeit kündbar</div>
                                     </div>
                                 </div>
@@ -75,21 +73,21 @@
                             </div>
                         </div>
 
-                        <!-- Yearly Plan -->
-                        <div class="plan-option" data-plan="yearly" id="plan-yearly">
+                        <!-- Yearly -->
+                        <div class="plan-option" id="plan-yearly">
                             <div class="plan-option-content">
                                 <div class="plan-option-header">
                                     <div class="plan-radio"></div>
                                     <div>
-                                        <div class="plan-name">Professional - Jährlich</div>
-                                        <div class="plan-description">Jährliche Abrechnung, spare 17%</div>
+                                        <div class="plan-name">Professional – Jährlich</div>
+                                        <div class="plan-description">Jährliche Abrechnung – spare 17%</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="plan-price">
                                 <div class="price-amount">€290</div>
                                 <div class="price-period">/Jahr</div>
-                                <div class="price-period" style="color: var(--success);">€24.17/Monat</div>
+                                <div class="price-period" style="color: var(--success);">≈ €24.17/Monat</div>
                             </div>
                         </div>
                     </div>
@@ -103,11 +101,11 @@
                         <div class="feature-list">
                             <div class="feature-item">
                                 <i class="fas fa-check-circle"></i>
-                                <span><strong>100 Anfragen pro Minute</strong> statt 20</span>
+                                <span><strong>100 Anfragen pro Minute</strong> (statt 20 im Free-Plan)</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check-circle"></i>
-                                <span>Alle Sprachen (wenn verfügbar)</span>
+                                <span>Alle verfügbaren Sprachen</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check-circle"></i>
@@ -123,7 +121,7 @@
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check-circle"></i>
-                                <span>Keine zusätzlichen Kosten</span>
+                                <span>30 Tage Geld-zurück-Garantie</span>
                             </div>
                         </div>
                     </div>
@@ -138,24 +136,20 @@
 
                     <div class="summary-item">
                         <div class="summary-label">Plan</div>
-                        <div class="summary-value" id="summary-plan">Professional - Monatlich</div>
+                        <div class="summary-value" id="summary-plan">Professional – Monatlich</div>
                     </div>
-
                     <div class="summary-item">
                         <div class="summary-label">Abrechnungszyklus</div>
                         <div class="summary-value" id="summary-cycle">Monatlich</div>
                     </div>
-
                     <div class="summary-item">
                         <div class="summary-label">Preis (inkl. MwSt.)</div>
                         <div class="summary-value" id="summary-price">€29.00</div>
                     </div>
-
                     <div class="summary-item" style="font-size: 0.875rem; color: var(--text-muted);">
                         <div class="summary-label">davon MwSt. (19%)</div>
                         <div class="summary-value" id="summary-tax">€4.63</div>
                     </div>
-
                     <div class="summary-item summary-total">
                         <div class="summary-label">Gesamt</div>
                         <div class="summary-value" id="summary-total">€29.00</div>
@@ -206,9 +200,12 @@
     <!-- Loading Spinner -->
     <div class="loading-spinner hidden" id="loading-spinner">
         <div class="spinner"></div>
-        <span>Zahlungsvorgang wird vorbereitet...</span>
+        <span>Zahlungsvorgang wird vorbereitet…</span>
     </div>
 
-    <script src="js/payment.js?v=2.0"></script>
+    <!-- Scripts: Reihenfolge wichtig! -->
+    <script src="js/config.js"></script>
+    <script src="js/pricing-config.js"></script>
+    <script src="js/payment.js"></script>
 </body>
 </html>

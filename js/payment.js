@@ -1,257 +1,178 @@
-// Payment Page JavaScript
-const API_BASE_URL = 'http://localhost:8000';
+/**
+ * Payment Page JavaScript
+ * Nutzt window.API_CONFIG (config.js) und window.PRICING_CONFIG (pricing-config.js)
+ * Beide Dateien MÜSSEN vor diesem Script geladen sein.
+ */
 
-// Get auth token
-let authToken = localStorage.getItem('authToken');
+const API_BASE_URL = (window.API_CONFIG && window.API_CONFIG.BASE_URL)
+  ? window.API_CONFIG.BASE_URL
+  : 'https://rechtschreibe-api.karol-paschek.workers.dev';
+
+const PC = window.PRICING_CONFIG;
+const proPlan = PC.plans.professional;
+
+// Auth
+let authToken   = localStorage.getItem('authToken');
 let currentUser = null;
 
-// Plan configuration
-const PLANS = {
-    monthly: {
-        name: 'Professional - Monatlich',
-        cycle: 'Monatlich',
-        price: 29.00, // Endpreis inkl. MwSt.
-        priceId: 'price_monthly', // This will be sent to backend which replaces it with actual Stripe Price ID
-        interval: 'month'
-    },
-    yearly: {
-        name: 'Professional - Jährlich',
-        cycle: 'Jährlich',
-        price: 290.00, // Endpreis inkl. MwSt.
-        priceId: 'price_yearly', // This will be sent to backend which replaces it with actual Stripe Price ID
-        interval: 'year'
-    }
+// Aktuell ausgewählter Zyklus
+let selectedCycle = 'monthly'; // 'monthly' | 'yearly'
+
+// ── DOM-Elemente ─────────────────────────────────────────────
+const el = {
+  billingToggle:  document.getElementById('billing-toggle'),
+  monthlyLabel:   document.getElementById('monthly-label'),
+  yearlyLabel:    document.getElementById('yearly-label'),
+  planMonthly:    document.getElementById('plan-monthly'),
+  planYearly:     document.getElementById('plan-yearly'),
+  summaryPlan:    document.getElementById('summary-plan'),
+  summaryCycle:   document.getElementById('summary-cycle'),
+  summaryPrice:   document.getElementById('summary-price'),
+  summaryTax:     document.getElementById('summary-tax'),
+  summaryTotal:   document.getElementById('summary-total'),
+  checkoutButton: document.getElementById('checkout-button'),
+  loadingSpinner: document.getElementById('loading-spinner'),
+  toastContainer: document.getElementById('toast-container'),
 };
 
-let selectedPlan = 'monthly';
-
-// DOM Elements
-const elements = {
-    billingToggle: document.getElementById('billing-toggle'),
-    monthlyLabel: document.getElementById('monthly-label'),
-    yearlyLabel: document.getElementById('yearly-label'),
-    planMonthly: document.getElementById('plan-monthly'),
-    planYearly: document.getElementById('plan-yearly'),
-    summaryPlan: document.getElementById('summary-plan'),
-    summaryCycle: document.getElementById('summary-cycle'),
-    summaryPrice: document.getElementById('summary-price'),
-    summaryTax: document.getElementById('summary-tax'),
-    summaryTotal: document.getElementById('summary-total'),
-    checkoutButton: document.getElementById('checkout-button'),
-    loadingSpinner: document.getElementById('loading-spinner'),
-    toastContainer: document.getElementById('toast-container')
-};
-
-// Utility Functions
-function showLoading() {
-    elements.loadingSpinner?.classList.remove('hidden');
+// ── Toast ─────────────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  if (!el.toastContainer) return;
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<div>${msg}</div>`;
+  el.toastContainer.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 100);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3500);
 }
 
-function hideLoading() {
-    elements.loadingSpinner?.classList.add('hidden');
-}
+// ── Loading ───────────────────────────────────────────────────
+function showLoading() { el.loadingSpinner?.classList.remove('hidden'); }
+function hideLoading() { el.loadingSpinner?.classList.add('hidden');    }
 
-function showToast(message, type = 'info') {
-    if (!elements.toastContainer) return;
-    
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `<div>${message}</div>`;
-    
-    elements.toastContainer.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 100);
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
-// Update summary based on selected plan
+// ── Summary aktualisieren ─────────────────────────────────────
 function updateSummary() {
-    const plan = PLANS[selectedPlan];
-    const totalPrice = plan.price; // Endpreis inkl. MwSt.
-    
-    // Berechne die enthaltene MwSt. rückwärts (für Anzeigezwecke)
-    const netPrice = totalPrice / 1.19;
-    const includedTax = totalPrice - netPrice;
-    
-    elements.summaryPlan.textContent = plan.name;
-    elements.summaryCycle.textContent = plan.cycle;
-    elements.summaryPrice.textContent = `€${totalPrice.toFixed(2)}`;
-    
-    // Zeige an, dass MwSt. bereits enthalten ist
-    elements.summaryTax.textContent = `€${includedTax.toFixed(2)} (enthalten)`;
-    elements.summaryTotal.textContent = `€${totalPrice.toFixed(2)}`;
+  const isYearly  = selectedCycle === 'yearly';
+  const totalPrice = isYearly ? proPlan.priceYearly : proPlan.priceMonthly;
+  const netPrice  = totalPrice / 1.19;
+  const tax       = totalPrice - netPrice;
+
+  const cycleName = isYearly ? 'Jährlich' : 'Monatlich';
+  const planName  = `${proPlan.name} – ${cycleName}`;
+
+  if (el.summaryPlan)  el.summaryPlan.textContent  = planName;
+  if (el.summaryCycle) el.summaryCycle.textContent = cycleName;
+  if (el.summaryPrice) el.summaryPrice.textContent = `€${totalPrice.toFixed(2)}`;
+  if (el.summaryTax)   el.summaryTax.textContent   = `€${tax.toFixed(2)} (enthalten)`;
+  if (el.summaryTotal) el.summaryTotal.textContent  = `€${totalPrice.toFixed(2)}`;
 }
 
-// Toggle billing cycle
-function toggleBilling() {
-    const isYearly = elements.billingToggle.classList.contains('active');
-    
-    if (isYearly) {
-        // Switch to monthly
-        elements.billingToggle.classList.remove('active');
-        elements.monthlyLabel.classList.add('active');
-        elements.yearlyLabel.classList.remove('active');
-        elements.planMonthly.classList.add('selected');
-        elements.planYearly.classList.remove('selected');
-        selectedPlan = 'monthly';
-    } else {
-        // Switch to yearly
-        elements.billingToggle.classList.add('active');
-        elements.monthlyLabel.classList.remove('active');
-        elements.yearlyLabel.classList.add('active');
-        elements.planMonthly.classList.remove('selected');
-        elements.planYearly.classList.add('selected');
-        selectedPlan = 'yearly';
-    }
-    
-    updateSummary();
+// ── Toggle-Funktion ────────────────────────────────────────────
+function setCycle(cycle) {
+  selectedCycle = cycle;
+  const yearly  = cycle === 'yearly';
+
+  el.billingToggle?.classList.toggle('active', yearly);
+  el.monthlyLabel?.classList.toggle('active', !yearly);
+  el.yearlyLabel?.classList.toggle('active',  yearly);
+  el.planMonthly?.classList.toggle('selected', !yearly);
+  el.planYearly?.classList.toggle('selected',  yearly);
+
+  updateSummary();
 }
 
-// Select plan directly
-function selectPlan(plan) {
-    selectedPlan = plan;
-    
-    // Update UI
-    document.querySelectorAll('.plan-option').forEach(option => {
-        option.classList.remove('selected');
-    });
-    
-    if (plan === 'monthly') {
-        elements.planMonthly.classList.add('selected');
-        elements.billingToggle.classList.remove('active');
-        elements.monthlyLabel.classList.add('active');
-        elements.yearlyLabel.classList.remove('active');
-    } else {
-        elements.planYearly.classList.add('selected');
-        elements.billingToggle.classList.add('active');
-        elements.monthlyLabel.classList.remove('active');
-        elements.yearlyLabel.classList.add('active');
-    }
-    
-    updateSummary();
-}
-
-// Create Stripe Checkout Session
+// ── Stripe Checkout erstellen ──────────────────────────────────
 async function createCheckoutSession() {
-    if (!authToken) {
-        showToast('Bitte melden Sie sich zuerst an', 'error');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 2000);
-        return;
+  if (!authToken) {
+    showToast('Bitte melden Sie sich zuerst an', 'error');
+    setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+    return;
+  }
+
+  showLoading();
+  el.checkoutButton.disabled = true;
+
+  try {
+    const priceId = selectedCycle === 'yearly'
+      ? proPlan.stripePriceIdYearly
+      : proPlan.stripePriceIdMonthly;
+
+    const response = await fetch(`${API_BASE_URL}/checkout/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({
+        price_id:          priceId,
+        subscription_type: 'professional',
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Fehler beim Erstellen der Checkout-Session');
     }
-    
-    showLoading();
-    elements.checkoutButton.disabled = true;
-    
-    try {
-        const plan = PLANS[selectedPlan];
-        
-        const response = await fetch(`${API_BASE_URL}/create-checkout-session`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({
-                price_id: plan.priceId,
-                subscription_type: 'professional'
-            })
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Fehler beim Erstellen der Checkout-Session');
-        }
-        
-        const data = await response.json();
-        
-        // Redirect to Stripe Checkout
-        if (data.checkout_url) {
-            window.location.href = data.checkout_url;
-        } else {
-            throw new Error('Keine Checkout-URL erhalten');
-        }
-        
-    } catch (error) {
-        console.error('Checkout Error:', error);
-        showToast(error.message || 'Fehler beim Starten der Zahlung', 'error');
-        elements.checkoutButton.disabled = false;
-        hideLoading();
+
+    const data = await response.json();
+
+    if (data.data?.checkout_url) {
+      window.location.href = data.data.checkout_url;
+    } else {
+      throw new Error('Keine Checkout-URL erhalten');
     }
+
+  } catch (error) {
+    console.error('Checkout Error:', error);
+    showToast(error.message || 'Fehler beim Starten der Zahlung', 'error');
+    el.checkoutButton.disabled = false;
+    hideLoading();
+  }
 }
 
-// Check if user is logged in
+// ── Auth prüfen ────────────────────────────────────────────────
 async function checkAuth() {
-    if (!authToken) {
-        showToast('Bitte melden Sie sich zuerst an', 'warning');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 2000);
-        return;
+  if (!authToken) {
+    showToast('Bitte melden Sie sich zuerst an', 'warning');
+    setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/me`, {
+      headers: { 'Authorization': `Bearer ${authToken}` },
+    });
+
+    if (!response.ok) throw new Error('Nicht authentifiziert');
+
+    const json    = await response.json();
+    currentUser   = json.data;
+
+    if (currentUser.subscription_type === 'professional') {
+      showToast('Sie haben bereits ein Professional-Abo', 'info');
+      setTimeout(() => { window.location.href = 'index.html#dashboard'; }, 2000);
+    } else if (currentUser.subscription_type === 'enterprise') {
+      showToast('Sie haben bereits ein Enterprise-Abo', 'info');
+      setTimeout(() => { window.location.href = 'index.html#dashboard'; }, 2000);
     }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/me`, {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Nicht authentifiziert');
-        }
-        
-        currentUser = await response.json();
-        
-        // Check if user already has professional subscription
-        if (currentUser.subscription_type === 'professional') {
-            showToast('Sie haben bereits ein Professional-Abo', 'info');
-            setTimeout(() => {
-                window.location.href = 'index.html#dashboard';
-            }, 2000);
-            return;
-        }
-        
-        // Check if user is enterprise
-        if (currentUser.subscription_type === 'enterprise') {
-            showToast('Sie haben bereits ein Enterprise-Abo', 'info');
-            setTimeout(() => {
-                window.location.href = 'index.html#dashboard';
-            }, 2000);
-        }
-        
-    } catch (error) {
-        console.error('Auth Error:', error);
-        showToast('Bitte melden Sie sich an', 'error');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 2000);
-    }
+  } catch (error) {
+    console.error('Auth Error:', error);
+    showToast('Bitte melden Sie sich an', 'error');
+    setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+  }
 }
 
-// Event Listeners
+// ── Event Listener ─────────────────────────────────────────────
 function setupEventListeners() {
-    // Billing toggle
-    elements.billingToggle?.addEventListener('click', toggleBilling);
-    
-    // Plan selection
-    elements.planMonthly?.addEventListener('click', () => selectPlan('monthly'));
-    elements.planYearly?.addEventListener('click', () => selectPlan('yearly'));
-    
-    // Checkout button
-    elements.checkoutButton?.addEventListener('click', createCheckoutSession);
+  el.billingToggle?.addEventListener('click', () => setCycle(selectedCycle === 'monthly' ? 'yearly' : 'monthly'));
+  el.planMonthly?.addEventListener('click',   () => setCycle('monthly'));
+  el.planYearly?.addEventListener('click',    () => setCycle('yearly'));
+  el.checkoutButton?.addEventListener('click', createCheckoutSession);
 }
 
-// Initialize
-function init() {
-    setupEventListeners();
-    updateSummary();
-    checkAuth();
-}
-
-// Start
-document.addEventListener('DOMContentLoaded', init);
+// ── Init ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  setupEventListeners();
+  updateSummary();
+  checkAuth();
+});

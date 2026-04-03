@@ -3,64 +3,465 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zahlung erfolgreich - Rechtschreibe API</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/payment.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Zahlung erfolgreich – Rechtschreibe API</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:      #0f0f17;
+            --surface: #16161f;
+            --border:  #2a2a3d;
+            --primary: #7c3aed;
+            --success: #10b981;
+            --text:    #f1f1f5;
+            --muted:   #7b7b99;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* ── Particles ─────────────────────────────────────── */
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+            animation: float-up linear infinite;
+        }
+
+        @keyframes float-up {
+            0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+            10%  { opacity: .6; }
+            90%  { opacity: .3; }
+            100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+        }
+
+        /* ── Card ──────────────────────────────────────────── */
+        .card {
+            position: relative;
+            z-index: 10;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 3rem 2.5rem;
+            max-width: 520px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(124, 58, 237, 0.12);
+        }
+
+        /* ── Circle SVG ────────────────────────────────────── */
+        .circle-wrap {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+        }
+
+        .circle-svg {
+            width: 120px;
+            height: 120px;
+            transform: rotate(-90deg);
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 6;
+        }
+
+        .circle-prog {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+            /* circumference = 2π × 52 ≈ 326.7 */
+            stroke-dasharray: 326.7;
+            stroke-dashoffset: 326.7;
+            animation: fill-circle 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+        }
+
+        @keyframes fill-circle {
+            0%   { stroke-dashoffset: 326.7; stroke: url(#grad-purple); }
+            80%  { stroke-dashoffset: 0;     stroke: url(#grad-purple); }
+            100% { stroke-dashoffset: 0;     stroke: #10b981; }
+        }
+
+        /* ── Checkmark ─────────────────────────────────────── */
+        .check-svg {
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            width: 52px;
+            height: 52px;
+        }
+
+        .check-path {
+            fill: none;
+            stroke: #10b981;
+            stroke-width: 5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            animation: draw-check 0.5s ease 1.85s forwards;
+        }
+
+        @keyframes draw-check {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* ── Pulse ring ────────────────────────────────────── */
+        .pulse-ring {
+            position: absolute;
+            inset: -12px;
+            border-radius: 50%;
+            border: 2px solid #10b981;
+            opacity: 0;
+            animation: pulse-out 0.6s ease 2.45s forwards;
+        }
+
+        @keyframes pulse-out {
+            0%   { transform: scale(1);    opacity: .6; }
+            100% { transform: scale(1.35); opacity: 0; }
+        }
+
+        /* ── Heading ───────────────────────────────────────── */
+        .success-title {
+            font-size: 2rem;
+            font-weight: 800;
+            opacity: 0;
+            transform: translateY(16px);
+            animation: slide-in 0.5s ease 2.3s forwards;
+        }
+
+        .success-sub {
+            color: var(--muted);
+            margin-top: .5rem;
+            font-size: .95rem;
+            opacity: 0;
+            animation: slide-in 0.5s ease 2.5s forwards;
+        }
+
+        /* ── Feature cards ─────────────────────────────────── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .75rem;
+            margin: 2rem 0;
+        }
+
+        .feat-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: left;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: border-color .3s, box-shadow .3s;
+        }
+        .feat-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+
+        .feat-icon {
+            font-size: 1.5rem;
+            margin-bottom: .5rem;
+        }
+
+        .feat-label {
+            font-size: .75rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .feat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-top: .2rem;
+        }
+
+        /* staggered delays set via JS */
+
+        /* ── Separator ─────────────────────────────────────── */
+        .separator {
+            height: 1px;
+            background: var(--border);
+            margin: 1.5rem 0;
+            opacity: 0;
+            animation: fade-in 0.4s ease 3.6s forwards;
+        }
+
+        /* ── CTA button ────────────────────────────────────── */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            background: linear-gradient(135deg, #7c3aed, #10b981);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: .875rem 2rem;
+            border: none;
+            border-radius: .75rem;
+            cursor: pointer;
+            width: 100%;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(12px);
+            animation: slide-in 0.5s ease 3.8s forwards;
+            transition: opacity .2s, transform .2s, box-shadow .2s;
+        }
+        .cta-btn:hover {
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.35);
+            transform: translateY(-2px) !important;
+        }
+
+        .cta-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            margin-top: .75rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: .9rem;
+            font-weight: 500;
+            padding: .7rem 1.5rem;
+            border-radius: .75rem;
+            cursor: pointer;
+            width: 100%;
+            justify-content: center;
+            opacity: 0;
+            animation: fade-in 0.4s ease 4.0s forwards;
+            transition: border-color .2s, color .2s;
+        }
+        .cta-secondary:hover { border-color: var(--muted); color: var(--text); }
+
+        /* ── Notice ────────────────────────────────────────── */
+        .notice {
+            margin-top: 1.5rem;
+            font-size: .8rem;
+            color: var(--muted);
+            opacity: 0;
+            animation: fade-in 0.4s ease 4.1s forwards;
+        }
+        .notice a { color: #7c3aed; text-decoration: none; }
+        .notice a:hover { text-decoration: underline; }
+
+        /* ── Keyframes ─────────────────────────────────────── */
+        @keyframes slide-in {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-in {
+            to { opacity: 1; }
+        }
+
+        /* ── Confetti dot burst ──────────────────────────────  */
+        .burst {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .dot {
+            position: absolute;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            opacity: 0;
+        }
+    </style>
 </head>
 <body>
-    <div class="payment-result">
-        <div class="result-card">
-            <div class="result-icon success">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            
-            <h1>Zahlung erfolgreich!</h1>
-            
-            <p>
-                Vielen Dank für Ihr Upgrade zu Professional! <br>
-                Ihr Account wurde erfolgreich aktiviert und Sie haben jetzt Zugriff auf alle Professional-Features.
-            </p>
-            
-            <div class="result-actions">
-                <button class="btn btn-primary btn-large btn-full" onclick="window.location.href='index.html#dashboard'">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Zum Dashboard
-                </button>
-                <button class="btn btn-outline btn-large btn-full" onclick="window.location.href='index.html#docs'">
-                    <i class="fas fa-book"></i>
-                    Dokumentation ansehen
-                </button>
-            </div>
-            
-            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-                <p style="color: var(--text-muted); font-size: 0.875rem;">
-                    Eine Bestätigungs-E-Mail wurde an Ihre E-Mail-Adresse gesendet.
-                </p>
-            </div>
+
+<!-- Floating Particles -->
+<div class="particles" id="particles"></div>
+<!-- Confetti burst canvas area -->
+<div class="burst" id="burst"></div>
+
+<div class="card">
+
+    <!-- ── Circle + Checkmark ── -->
+    <div class="circle-wrap">
+        <div class="pulse-ring"></div>
+
+        <svg class="circle-svg" viewBox="0 0 120 120">
+            <defs>
+                <linearGradient id="grad-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%"   stop-color="#9333ea"/>
+                    <stop offset="50%"  stop-color="#ec4899"/>
+                    <stop offset="100%" stop-color="#f97316"/>
+                </linearGradient>
+            </defs>
+            <circle class="circle-bg"   cx="60" cy="60" r="52"/>
+            <circle class="circle-prog" cx="60" cy="60" r="52" id="circle-prog"/>
+        </svg>
+
+        <svg class="check-svg" viewBox="0 0 52 52">
+            <path class="check-path" d="M10 26 L22 38 L42 16"/>
+        </svg>
+    </div>
+
+    <!-- ── Heading ── -->
+    <h1 class="success-title">🎉 Willkommen, Pro!</h1>
+    <p class="success-sub">Ihr Professional-Abo ist jetzt aktiv und sofort nutzbar.</p>
+
+    <!-- ── Features ── -->
+    <div class="features-grid" id="features-grid">
+        <div class="feat-card" data-delay="2.8">
+            <div class="feat-icon">⚡</div>
+            <div class="feat-label">Anfragen / Minute</div>
+            <div class="feat-value">100</div>
+        </div>
+        <div class="feat-card" data-delay="2.95">
+            <div class="feat-icon">🌍</div>
+            <div class="feat-label">Sprachen</div>
+            <div class="feat-value">Alle</div>
+        </div>
+        <div class="feat-card" data-delay="3.1">
+            <div class="feat-icon">📊</div>
+            <div class="feat-label">Statistiken</div>
+            <div class="feat-value">Erweitert</div>
+        </div>
+        <div class="feat-card" data-delay="3.25">
+            <div class="feat-icon">💬</div>
+            <div class="feat-label">Support</div>
+            <div class="feat-value">Priorität</div>
         </div>
     </div>
-    
-    <script>
-        // Verify session and update user status
-        const urlParams = new URLSearchParams(window.location.search);
-        const sessionId = urlParams.get('session_id');
-        
-        if (sessionId) {
-            // Optional: Verify the session with backend
-            const authToken = localStorage.getItem('authToken');
-            if (authToken) {
-                fetch(`http://localhost:8000/verify-checkout-session`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify({ session_id: sessionId })
-                }).catch(err => console.error('Verification error:', err));
-            }
+
+    <div class="separator"></div>
+
+    <!-- ── CTAs ── -->
+    <button class="cta-btn" onclick="goToDashboard()">
+        <span>🚀</span>
+        <span>Zum Dashboard</span>
+    </button>
+    <button class="cta-secondary" onclick="window.location.href='docs.html'">
+        <span>📖</span>
+        <span>API-Dokumentation</span>
+    </button>
+
+    <p class="notice">
+        Eine Bestätigungs-E-Mail wurde an Ihre Adresse gesendet.<br>
+        Fragen? <a href="mailto:support@framespell.de">support@framespell.de</a>
+    </p>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/pricing-config.js"></script>
+<script>
+// ─── Feature cards: stagger via CSS animation-delay ────────────────────────
+document.querySelectorAll('.feat-card').forEach(card => {
+    const delay = card.dataset.delay || '2.8';
+    card.style.animation = `slide-in 0.5s ease ${delay}s forwards`;
+});
+
+// ─── Floating Particles ─────────────────────────────────────────────────────
+(function spawnParticles() {
+    const container = document.getElementById('particles');
+    const colors = ['#7c3aed55','#ec489955','#10b98155','#f9731655'];
+    for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = 4 + Math.random() * 10;
+        p.style.cssText = `
+            width: ${size}px; height: ${size}px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            left: ${Math.random() * 100}%;
+            animation-duration: ${6 + Math.random() * 8}s;
+            animation-delay: ${Math.random() * 6}s;
+        `;
+        container.appendChild(p);
+    }
+})();
+
+// ─── Confetti burst at ~2.4 s ───────────────────────────────────────────────
+setTimeout(() => {
+    const burst   = document.getElementById('burst');
+    const cx      = window.innerWidth  / 2;
+    const cy      = window.innerHeight / 2;
+    const palette = ['#10b981','#7c3aed','#ec4899','#f97316','#facc15','#06b6d4'];
+
+    for (let i = 0; i < 40; i++) {
+        const dot   = document.createElement('div');
+        dot.className = 'dot';
+        const angle = (Math.PI * 2 * i) / 40;
+        const dist  = 80 + Math.random() * 160;
+        const tx    = Math.cos(angle) * dist;
+        const ty    = Math.sin(angle) * dist;
+        dot.style.cssText = `
+            left: ${cx}px; top: ${cy}px;
+            background: ${palette[Math.floor(Math.random() * palette.length)]};
+            width: ${5 + Math.random() * 7}px;
+            height: ${5 + Math.random() * 7}px;
+        `;
+        burst.appendChild(dot);
+
+        // Keyframe via Web Animations API
+        dot.animate([
+            { opacity: 0,   transform: 'translate(-50%,-50%) translate(0,0)   scale(0)' },
+            { opacity: 1,   transform: `translate(-50%,-50%) translate(${tx * 0.3}px,${ty * 0.3}px) scale(1)`, offset: 0.15 },
+            { opacity: 0.8, transform: `translate(-50%,-50%) translate(${tx}px,${ty}px) scale(0.8)` },
+            { opacity: 0,   transform: `translate(-50%,-50%) translate(${tx * 1.4}px,${ty * 1.4 + 60}px) scale(0)` },
+        ], {
+            duration:  900 + Math.random() * 400,
+            easing:    'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            fill:      'forwards',
+        });
+    }
+    setTimeout(() => burst.remove(), 1500);
+}, 2400);
+
+// ─── Session verification + user token refresh ──────────────────────────────
+(async function verifySession() {
+    const urlParams  = new URLSearchParams(window.location.search);
+    const sessionId  = urlParams.get('session_id');
+    const authToken  = localStorage.getItem('authToken');
+    const apiBaseUrl = (window.API_CONFIG && window.API_CONFIG.BASE_URL)
+        ? window.API_CONFIG.BASE_URL
+        : 'https://rechtschreibe-api.karol-paschek.workers.dev';
+
+    if (!authToken) return;
+
+    try {
+        // Frischen Nutzer-Status abrufen (subscription_type ist nach Webhook aktualisiert)
+        const res  = await fetch(`${apiBaseUrl}/me`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Lokalen Cache aktualisieren
+        if (data.data) {
+            localStorage.setItem('userData', JSON.stringify(data.data));
         }
-    </script>
+    } catch (err) {
+        console.warn('Session verification failed:', err);
+    }
+})();
+
+// ─── Navigate to Dashboard ──────────────────────────────────────────────────
+function goToDashboard() {
+    window.location.href = 'dashboard-new.html';
+}
+</script>
 </body>
 </html>
