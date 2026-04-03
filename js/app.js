@@ -1,5 +1,5 @@
 // API Base URL - anpassen je nach Backend-Setup
-const API_BASE_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = window.API_CONFIG?.BASE_URL || 'https://rechtschreibe-api.karol-paschek.workers.dev';
 console.log('🚀 API URL:', API_BASE_URL);
 
 // State Management
@@ -1335,6 +1335,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize language selector for documentation
     initLanguageSelector();
+    
+    // Auto-open dashboard if redirected from payment-success page
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('open_dashboard') === '1') {
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Wait for init/loadUserProfile to complete
+        setTimeout(() => {
+            if (typeof openDashboardNew === 'function') {
+                openDashboardNew();
+            } else if (typeof showDashboard === 'function') {
+                showDashboard();
+            }
+        }, 1200);
+    }
 });
 
 // Language selector for documentation

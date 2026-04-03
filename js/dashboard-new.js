@@ -63,8 +63,37 @@ function setupDashboardEventListeners() {
     }
 }
 
-// Open Dashboard
-function openDashboardNew() {
+// ── Open Dashboard ────────────────────────────────────────────────────────────
+// Race-condition fix: authToken = source of truth.
+// currentUser may still be loading (async) – wait if needed.
+async function openDashboardNew() {
+    const storedToken = localStorage.getItem('authToken');
+    
+    // No token at all → not logged in
+    if (!storedToken && !authToken) {
+        showToast('Bitte melden Sie sich zuerst an', 'error');
+        showElement(elements.loginModal);
+        return;
+    }
+    
+    // Ensure module-level authToken is set from localStorage
+    if (!authToken && storedToken) {
+        authToken = storedToken;
+    }
+    
+    // If currentUser is not loaded yet, load it now
+    if (!currentUser) {
+        try {
+            await loadUserProfile();
+        } catch (err) {
+            console.error('Dashboard auth check failed:', err);
+            showToast('Anmeldung fehlgeschlagen – bitte erneut anmelden', 'error');
+            showElement(elements.loginModal);
+            return;
+        }
+    }
+    
+    // Final check after loading
     if (!currentUser || !authToken) {
         showToast('Bitte melden Sie sich zuerst an', 'error');
         showElement(elements.loginModal);
@@ -80,8 +109,7 @@ function openDashboardNew() {
         document.body.style.overflow = 'hidden';
         loadDashboardData();
         
-        // Kein Interval mehr – Usage wird direkt aus /spellcheck-Antworten aktualisiert
-        // Fallback-Poll (30s) über startUsagePolling() in app.js
+        // Fallback-Poll (30s) für Usage-Updates, primär via /spellcheck-Antworten
         if (typeof startUsagePolling === 'function') startUsagePolling();
     }
 }
@@ -97,14 +125,12 @@ function closeDashboardNew() {
         document.body.style.overflow = 'auto';
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
-        // Poll stoppen
         if (typeof stopUsagePolling === 'function') stopUsagePolling();
     }
 }
 
 // Switch Page
 function switchToPage(pageName) {
-    // Update tabs
     document.querySelectorAll('.dashboard-tab').forEach(tab => {
         tab.classList.remove('active');
         if (tab.dataset.page === pageName) {
@@ -112,7 +138,6 @@ function switchToPage(pageName) {
         }
     });
     
-    // Update pages
     document.querySelectorAll('.dashboard-page').forEach(page => {
         page.classList.remove('active');
     });
@@ -165,46 +190,50 @@ function updateDashboardUI() {
     loadUsageData();
 }
 
+// ── Helper: get rate limit for subscription type ───────────────────────────────
+function getRateLimitForPlan(subscriptionType) {
+    // Single source of truth: use PRICING_CONFIG if available, else fallback
+    if (window.PRICING_CONFIG) {
+        const plan = window.PRICING_CONFIG.getPlan(subscriptionType);
+        const limit = plan.requestsPerMinute;
+        return limit === Infinity ? 999999 : limit;
+    }
+    const limits = { free: 20, professional: 100, enterprise: 999999 };
+    return limits[subscriptionType] || 20;
+}
+
 // Load Profile Data
 function loadProfileData() {
     if (!currentUser) return;
     
-    // Personal Information
-    const profileEmail = document.getElementById('profile-email');
-    const profileStatus = document.getElementById('profile-status');
-    const profileJoined = document.getElementById('profile-joined');
-    const profileUserId = document.getElementById('profile-user-id');
+    const profileEmail   = document.getElementById('profile-email');
+    const profileStatus  = document.getElementById('profile-status');
+    const profileJoined  = document.getElementById('profile-joined');
+    const profileUserId  = document.getElementById('profile-user-id');
     
     if (profileEmail) profileEmail.textContent = currentUser.email;
     if (profileStatus) {
-        // Map subscription types to display names
-        const subscriptionNames = {
-            'free': 'Kostenlos',
-            'professional': 'Professional',
-            'enterprise': 'Enterprise'
-        };
-        const displayName = subscriptionNames[currentUser.subscription_type] || 'Kostenlos';
-        profileStatus.textContent = displayName;
+        const names = { free: 'Kostenlos', professional: 'Professional', enterprise: 'Enterprise' };
+        profileStatus.textContent = names[currentUser.subscription_type] || 'Kostenlos';
         profileStatus.className = 'status-badge clickable ' + (currentUser.subscription_type !== 'free' ? 'premium' : 'free');
         profileStatus.style.cursor = 'pointer';
         profileStatus.title = 'Klicken Sie hier, um Ihr Abo zu upgraden';
     }
     if (profileJoined) {
-        const joinDate = currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString('de-DE') : '-';
-        profileJoined.textContent = joinDate;
+        profileJoined.textContent = currentUser.created_at
+            ? new Date(currentUser.created_at).toLocaleDateString('de-DE')
+            : '-';
     }
     if (profileUserId) profileUserId.textContent = currentUser.id || '-';
     
-    // Statistics
-    const totalRequests = document.getElementById('profile-total-requests');
-    const requestsToday = document.getElementById('profile-requests-today');
-    const totalCost = document.getElementById('profile-total-cost');
+    const totalRequests  = document.getElementById('profile-total-requests');
+    const requestsToday  = document.getElementById('profile-requests-today');
+    const totalCost      = document.getElementById('profile-total-cost');
     
     if (totalRequests) totalRequests.textContent = currentUser.total_requests || '0';
     if (requestsToday) requestsToday.textContent = currentUser.tokens_used_today || '0';
-    
     if (totalCost) {
-        const cost = Math.max(0, (currentUser.total_requests || 0) - (currentUser.tokens_used_today || 0)) * 0.009;
+        const cost = Math.max(0, (currentUser.total_requests || 0) - 20) * 0.009;
         totalCost.textContent = `€${cost.toFixed(2)}`;
     }
 }
@@ -217,6 +246,13 @@ function loadApiKeysData() {
     if (currentApiKey && currentUser.api_key) {
         currentApiKey.value = currentUser.api_key;
     }
+    
+    // Update limits display based on plan
+    const rateLimit = getRateLimitForPlan(currentUser.subscription_type);
+    const limitValueEl = document.querySelector('.limit-value');
+    if (limitValueEl && rateLimit !== 999999) {
+        limitValueEl.textContent = rateLimit;
+    }
 }
 
 // Usage-UI direkt aus rate_limit-Objekt aktualisieren (kein /me nötig)
@@ -228,16 +264,16 @@ function loadUsageDataFromRateLimit(rateLimit) {
     const limit     = rateLimit.limit     || 20;
     const pct       = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
     
-    const usageTodayCount     = document.getElementById('usage-today-count');
-    const usageRemainingCount = document.getElementById('usage-remaining-count');
-    const usagePercentage     = document.getElementById('usage-percentage');
-    const usageProgressFill   = document.getElementById('usage-progress-fill');
+    const usageTodayCount      = document.getElementById('usage-today-count');
+    const usageRemainingCount  = document.getElementById('usage-remaining-count');
+    const usagePercentage      = document.getElementById('usage-percentage');
+    const usageProgressFill    = document.getElementById('usage-progress-fill');
     const profileRequestsToday = document.getElementById('profile-requests-today');
     
-    if (usageTodayCount)      usageTodayCount.textContent     = used;
-    if (usageRemainingCount)  usageRemainingCount.textContent = remaining;
-    if (usagePercentage)      usagePercentage.textContent     = `${pct.toFixed(0)}%`;
-    if (usageProgressFill)    usageProgressFill.style.width   = `${pct}%`;
+    if (usageTodayCount)      usageTodayCount.textContent      = used;
+    if (usageRemainingCount)  usageRemainingCount.textContent  = remaining;
+    if (usagePercentage)      usagePercentage.textContent      = `${pct.toFixed(0)}%`;
+    if (usageProgressFill)    usageProgressFill.style.width    = `${pct}%`;
     if (profileRequestsToday) profileRequestsToday.textContent = used;
     
     if (rateLimit.resetAt && rateLimit.resetAt > Date.now() && used >= limit) {
@@ -251,37 +287,23 @@ function loadUsageDataFromRateLimit(rateLimit) {
 function loadUsageData() {
     if (!currentUser) return;
     
-    const usageTodayCount = document.getElementById('usage-today-count');
-    const usageRemainingCount = document.getElementById('usage-remaining-count');
-    const usageTodayCost = document.getElementById('usage-today-cost');
-    const usagePercentage = document.getElementById('usage-percentage');
-    const usageProgressFill = document.getElementById('usage-progress-fill');
-    
     const tokensUsedToday = currentUser.tokens_used_today || 0;
+    const rateLimit       = getRateLimitForPlan(currentUser.subscription_type);
+    const remaining       = Math.max(0, rateLimit - tokensUsedToday);
+    const pct             = rateLimit > 0 ? (tokensUsedToday / rateLimit) * 100 : 0;
     
-    // Calculate limit based on subscription
-    let rateLimit = 20;
-    let costPerToken = 0.009;
+    const usageTodayCount     = document.getElementById('usage-today-count');
+    const usageRemainingCount = document.getElementById('usage-remaining-count');
+    const usageTodayCost      = document.getElementById('usage-today-cost');
+    const usagePercentage     = document.getElementById('usage-percentage');
+    const usageProgressFill   = document.getElementById('usage-progress-fill');
     
-    if (currentUser.subscription_type === 'professional') {
-        rateLimit = 100;
-        costPerToken = 0.005;
-    } else if (currentUser.subscription_type === 'enterprise') {
-        rateLimit = 999999;
-        costPerToken = 0;
-    }
-    
-    const remaining = Math.max(0, rateLimit - tokensUsedToday);
-    const cost = Math.max(0, tokensUsedToday - rateLimit) * costPerToken;
-    const percentage = (tokensUsedToday / rateLimit) * 100;
-    
-    if (usageTodayCount) usageTodayCount.textContent = tokensUsedToday;
+    if (usageTodayCount)     usageTodayCount.textContent     = tokensUsedToday;
     if (usageRemainingCount) usageRemainingCount.textContent = remaining;
-    if (usageTodayCost) usageTodayCost.textContent = `€${cost.toFixed(2)}`;
-    if (usagePercentage) usagePercentage.textContent = `${Math.min(percentage, 100).toFixed(0)}%`;
-    if (usageProgressFill) usageProgressFill.style.width = `${Math.min(percentage, 100)}%`;
+    if (usageTodayCost)      usageTodayCost.textContent      = '€0.00';
+    if (usagePercentage)     usagePercentage.textContent     = `${Math.min(pct, 100).toFixed(0)}%`;
+    if (usageProgressFill)   usageProgressFill.style.width   = `${Math.min(pct, 100)}%`;
     
-    // Update progress note text
     const progressNote = document.getElementById('progress-note-text');
     if (progressNote) {
         if (currentUser.subscription_type === 'professional') {
@@ -293,21 +315,19 @@ function loadUsageData() {
         }
     }
     
-    // Month statistics (simplified - should be fetched from backend)
-    const monthTotalRequests = document.getElementById('month-total-requests');
-    const monthFreeRequests = document.getElementById('month-free-requests');
-    const monthPaidRequests = document.getElementById('month-paid-requests');
-    const monthTotalCost = document.getElementById('month-total-cost');
+    const totalRequests   = currentUser.total_requests || 0;
+    const freeRequests    = Math.min(totalRequests, 20);
+    const paidRequests    = Math.max(0, totalRequests - 20);
     
-    const totalRequests = currentUser.total_requests || 0;
-    const freeRequests = Math.min(totalRequests, rateLimit);
-    const paidRequests = Math.max(0, totalRequests - rateLimit);
-    const monthCost = paidRequests * costPerToken;
+    const monthTotalEl  = document.getElementById('month-total-requests');
+    const monthFreeEl   = document.getElementById('month-free-requests');
+    const monthPaidEl   = document.getElementById('month-paid-requests');
+    const monthCostEl   = document.getElementById('month-total-cost');
     
-    if (monthTotalRequests) monthTotalRequests.textContent = totalRequests;
-    if (monthFreeRequests) monthFreeRequests.textContent = freeRequests;
-    if (monthPaidRequests) monthPaidRequests.textContent = paidRequests;
-    if (monthTotalCost) monthTotalCost.textContent = `€${monthCost.toFixed(2)}`;
+    if (monthTotalEl) monthTotalEl.textContent = totalRequests;
+    if (monthFreeEl)  monthFreeEl.textContent  = freeRequests;
+    if (monthPaidEl)  monthPaidEl.textContent  = paidRequests;
+    if (monthCostEl)  monthCostEl.textContent  = '€0.00';
 }
 
 // Select Language
@@ -322,13 +342,7 @@ function selectLanguage(lang) {
     });
     
     const selectedLanguageName = document.getElementById('selected-language-name');
-    const languageNames = {
-        'de': 'Deutsch',
-        'en': 'Englisch',
-        'es': 'Spanisch',
-        'fr': 'Französisch'
-    };
-    
+    const languageNames = { de: 'Deutsch', en: 'Englisch', es: 'Spanisch', fr: 'Französisch' };
     if (selectedLanguageName) {
         selectedLanguageName.textContent = languageNames[lang] || lang;
     }
@@ -341,9 +355,6 @@ function copyApiKeyToClipboard() {
         showToast('Kein API Key vorhanden', 'error');
         return;
     }
-    
-    apiKeyInput.select();
-    apiKeyInput.setSelectionRange(0, 99999);
     
     navigator.clipboard.writeText(apiKeyInput.value).then(() => {
         showToast('API Key in Zwischenablage kopiert!', 'success');
@@ -362,7 +373,6 @@ async function regenerateApiKeyAction() {
         showLoading();
         await regenerateApiKey();
         loadApiKeysData();
-        showToast('API Key erfolgreich regeneriert!', 'success');
     } catch (error) {
         showToast(error.message || 'Fehler beim Regenerieren', 'error');
     } finally {
@@ -372,12 +382,12 @@ async function regenerateApiKeyAction() {
 
 // Run Usage Test
 async function runUsageTest() {
-    const testText = document.getElementById('usage-test-text');
+    const testText     = document.getElementById('usage-test-text');
     const testLanguage = document.getElementById('usage-test-language');
-    const testOutput = document.getElementById('usage-test-output');
-    const testResult = document.getElementById('usage-test-result');
-    const testTime = document.getElementById('usage-test-time');
-    const testStatus = document.getElementById('usage-test-status');
+    const testOutput   = document.getElementById('usage-test-output');
+    const testResult   = document.getElementById('usage-test-result');
+    const testTime     = document.getElementById('usage-test-time');
+    const testStatus   = document.getElementById('usage-test-status');
     
     if (!testText || !testText.value.trim()) {
         showToast('Bitte geben Sie einen Text ein', 'error');
@@ -387,24 +397,16 @@ async function runUsageTest() {
     try {
         showLoading();
         
-        const result = await spellcheck(testText.value.trim(), testLanguage.value, false);
+        const result = await spellcheck(testText.value.trim(), testLanguage?.value || 'de', false);
         
         if (testResult) testResult.textContent = result.corrected_text;
-        if (testTime) testTime.textContent = result.actual_processing_time;
-        if (testStatus) {
-            testStatus.textContent = 'Erfolgreich';
-            testStatus.className = 'success';
-        }
+        if (testTime)   testTime.textContent   = result.actual_processing_time;
+        if (testStatus) { testStatus.textContent = 'Erfolgreich'; testStatus.className = 'success'; }
+        if (testOutput) testOutput.classList.remove('hidden');
         
-        if (testOutput) {
-            testOutput.classList.remove('hidden');
-        }
-        
-        // Usage direkt aus Spellcheck-Antwort aktualisieren – kein extra /me Request
+        // Usage direkt aus Spellcheck-Antwort aktualisieren
         if (result.rate_limit) {
-            if (typeof updateUsageFromRateLimit === 'function') {
-                updateUsageFromRateLimit(result.rate_limit);
-            }
+            if (typeof updateUsageFromRateLimit === 'function') updateUsageFromRateLimit(result.rate_limit);
             loadUsageDataFromRateLimit(result.rate_limit);
         }
         
@@ -412,13 +414,8 @@ async function runUsageTest() {
         
     } catch (error) {
         if (testResult) testResult.textContent = 'Fehler: ' + error.message;
-        if (testStatus) {
-            testStatus.textContent = 'Fehler';
-            testStatus.className = 'error';
-        }
-        if (testOutput) {
-            testOutput.classList.remove('hidden');
-        }
+        if (testStatus) { testStatus.textContent = 'Fehler'; testStatus.className = 'error'; }
+        if (testOutput) testOutput.classList.remove('hidden');
         showToast(error.message || 'Test fehlgeschlagen', 'error');
     } finally {
         hideLoading();
@@ -434,20 +431,24 @@ function integrateNewDashboard() {
         if (href === '#profile' || href === '#api-keys' || href === '#usage') {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
-                openDashboardNew();
-                
-                if (href === '#profile') switchToPage('profile');
-                else if (href === '#api-keys') switchToPage('api-keys');
-                else if (href === '#usage') switchToPage('usage');
+                openDashboardNew().then(() => {
+                    if (href === '#profile')   switchToPage('profile');
+                    else if (href === '#api-keys') switchToPage('api-keys');
+                    else if (href === '#usage')    switchToPage('usage');
+                });
             });
         }
     });
     
     const getStartedBtn = document.getElementById('get-started-btn');
     if (getStartedBtn) {
-        getStartedBtn.addEventListener('click', (e) => {
+        // Remove existing listeners by cloning
+        const newBtn = getStartedBtn.cloneNode(true);
+        getStartedBtn.parentNode.replaceChild(newBtn, getStartedBtn);
+        newBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (currentUser && authToken) {
+            const token = localStorage.getItem('authToken');
+            if (currentUser || token) {
                 openDashboardNew();
             } else {
                 showElement(elements.registerModal);
@@ -458,155 +459,81 @@ function integrateNewDashboard() {
 
 // Settings Management
 function initSettingsHandlers() {
-    const allowPaidCheckbox = document.getElementById('allow-paid-requests');
+    const allowPaidCheckbox         = document.getElementById('allow-paid-requests');
     const emailNotificationsCheckbox = document.getElementById('email-notifications');
-    const autoUpgradeCheckbox = document.getElementById('auto-upgrade');
-    const saveSettingsBtn = document.getElementById('save-settings-btn');
+    const saveSettingsBtn           = document.getElementById('save-settings-btn');
 
-    // Load saved settings
     function loadSettings() {
         const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
-        if (allowPaidCheckbox) allowPaidCheckbox.checked = settings.allowPaidRequests !== false;
+        if (allowPaidCheckbox)          allowPaidCheckbox.checked          = settings.allowPaidRequests !== false;
         if (emailNotificationsCheckbox) emailNotificationsCheckbox.checked = settings.emailNotifications !== false;
-        if (autoUpgradeCheckbox) autoUpgradeCheckbox.checked = settings.autoUpgrade === true;
     }
 
-    // Save settings
     async function saveSettings() {
         const settings = {
-            allowPaidRequests: allowPaidCheckbox?.checked,
-            emailNotifications: emailNotificationsCheckbox?.checked,
-            autoUpgrade: autoUpgradeCheckbox?.checked
+            allowPaidRequests:    allowPaidCheckbox?.checked,
+            emailNotifications:   emailNotificationsCheckbox?.checked,
         };
-
-        // Save to localStorage (später: Backend API Call)
         localStorage.setItem('userSettings', JSON.stringify(settings));
-
-        // TODO: API Call zum Backend
-        // await apiRequest('/settings', {
-        //     method: 'PUT',
-        //     body: JSON.stringify(settings)
-        // });
-
         showToast('Einstellungen gespeichert!', 'success');
     }
 
-    // Event Listeners
     if (saveSettingsBtn) {
         saveSettingsBtn.addEventListener('click', saveSettings);
     }
-
-    // Auto-save on toggle change
-    [allowPaidCheckbox, emailNotificationsCheckbox, autoUpgradeCheckbox].forEach(checkbox => {
-        if (checkbox) {
-            checkbox.addEventListener('change', () => {
-                // Visual feedback
-                const settingItem = checkbox.closest('.setting-item');
-                settingItem.style.background = 'rgba(99, 102, 241, 0.1)';
-                setTimeout(() => {
-                    settingItem.style.background = '';
-                }, 300);
-            });
-        }
-    });
-
-    // Load settings on init
     loadSettings();
 }
 
-// Plan Management Functions
+// Plan Display (uses PRICING_CONFIG when available)
 function updatePlanDisplay() {
     if (!currentUser) return;
     
-    const subscriptionType = currentUser.subscription_type || 'free';
-    const planName = {
-        'free': 'Kostenlos',
-        'professional': 'Professional',
-        'enterprise': 'Enterprise'
-    }[subscriptionType] || 'Kostenlos';
+    const subType  = currentUser.subscription_type || 'free';
+    const names    = { free: 'Kostenlos', professional: 'Professional', enterprise: 'Enterprise' };
+    const planName = names[subType] || 'Kostenlos';
     
-    // Update current plan badge
     const currentPlanName = document.getElementById('current-plan-name');
     if (currentPlanName) currentPlanName.textContent = planName;
     
-    // Show/hide plan badges and buttons
-    document.getElementById('free-current-badge')?.style.setProperty('display', subscriptionType === 'free' ? 'flex' : 'none');
-    document.getElementById('pro-current-badge')?.style.setProperty('display', subscriptionType === 'professional' ? 'flex' : 'none');
-    document.getElementById('enterprise-current-badge')?.style.setProperty('display', subscriptionType === 'enterprise' ? 'flex' : 'none');
-    
-    // Show/hide upgrade/downgrade buttons
-    const upgradeToProBtn = document.getElementById('upgrade-to-pro-btn');
+    const upgradeToProBtn    = document.getElementById('upgrade-to-pro-btn');
     const downgradeToFreeBtn = document.getElementById('downgrade-to-free-btn');
     
-    if (upgradeToProBtn) {
-        upgradeToProBtn.style.display = subscriptionType === 'professional' ? 'none' : 'block';
-    }
+    if (upgradeToProBtn)    upgradeToProBtn.style.display    = subType === 'professional' ? 'none'  : 'block';
+    if (downgradeToFreeBtn) downgradeToFreeBtn.style.display = subType !== 'free'        ? 'block' : 'none';
     
-    if (downgradeToFreeBtn) {
-        downgradeToFreeBtn.style.display = subscriptionType !== 'free' ? 'block' : 'none';
-    }
-    
-    // Show billing info for paid plans
     const billingInfo = document.getElementById('billing-info');
     if (billingInfo) {
-        billingInfo.style.display = subscriptionType !== 'free' ? 'flex' : 'none';
-        
-        // Calculate next billing date (30 days from now)
-        const nextBilling = new Date();
+        billingInfo.style.display = subType !== 'free' ? 'flex' : 'none';
+        const nextBilling     = new Date();
         nextBilling.setDate(nextBilling.getDate() + 30);
         const nextBillingDate = document.getElementById('next-billing-date');
         if (nextBillingDate) {
             nextBillingDate.textContent = nextBilling.toLocaleDateString('de-DE', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric'
+                day: '2-digit', month: 'long', year: 'numeric',
             });
         }
     }
 }
 
-// Event Handlers
+// Event Handlers for Plan Buttons
 document.getElementById('upgrade-to-pro-btn')?.addEventListener('click', () => {
-    // Redirect to payment page
     window.location.href = 'payment.html';
 });
 
 document.getElementById('contact-enterprise-btn')?.addEventListener('click', () => {
     showToast('Enterprise-Kontakt: support@framespell.de', 'info');
-    // Optional: Open modal with contact form
 });
 
 document.getElementById('downgrade-to-free-btn')?.addEventListener('click', async () => {
-    if (!confirm('Möchten Sie wirklich auf den kostenlosen Plan zurückkehren? Ihre Professional-Vorteile gehen am Ende des Abrechnungszeitraums verloren.')) {
-        return;
-    }
-    
-    try {
-        showLoading();
-        
-        // API Call zum Downgrade (Backend muss noch implementiert werden)
-        // const response = await apiRequest('/downgrade', {
-        //     method: 'POST',
-        //     body: JSON.stringify({ plan: 'free' })
-        // });
-        
-        // Temporär: Lokale Aktualisierung
-        showToast('Downgrade geplant. Ihre Änderung wird am Ende des Abrechnungszeitraums aktiv.', 'success');
-        
-        // TODO: Backend implementieren für echtes Downgrade
-        
-    } catch (error) {
-        showToast(error.message || 'Fehler beim Downgrade', 'error');
-    } finally {
-        hideLoading();
-    }
+    if (!confirm('Möchten Sie wirklich auf den kostenlosen Plan zurückkehren?')) return;
+    showToast('Downgrade geplant. Änderung wird am Ende des Abrechnungszeitraums aktiv.', 'success');
 });
 
-// Update plan display when user data changes
-const originalUpdateUI = updateUI;
+// Hook updateUI to also update plan display
+const originalUpdateUI_dash = typeof updateUI !== 'undefined' ? updateUI : null;
 updateUI = function() {
-    originalUpdateUI();
-    updatePlanDisplay();
+    if (typeof originalUpdateUI_dash === 'function') originalUpdateUI_dash();
+    try { updatePlanDisplay(); } catch (_) {}
 };
 
 // Initialize when dashboard is shown
@@ -614,7 +541,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initSettingsHandlers();
 });
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         initializeDashboard();
@@ -622,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
 });
 
-// Export functions
-window.openDashboardNew = openDashboardNew;
-window.closeDashboardNew = closeDashboardNew;
-window.switchToPage = switchToPage;
+// Export
+window.openDashboardNew   = openDashboardNew;
+window.closeDashboardNew  = closeDashboardNew;
+window.switchToPage       = switchToPage;

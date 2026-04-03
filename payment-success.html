@@ -460,7 +460,9 @@ setTimeout(() => {
 
 // ─── Navigate to Dashboard ──────────────────────────────────────────────────
 function goToDashboard() {
-    window.location.href = 'dashboard-new.html';
+    // Redirect to main page; the embedded dashboard will open automatically
+    // because the authToken is still in localStorage
+    window.location.href = 'index.html?open_dashboard=1';
 }
 </script>
 </body>

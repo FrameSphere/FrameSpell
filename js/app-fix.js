@@ -1,11 +1,4 @@
-// API Base URL - wird aus config.js geladen
-const API_BASE_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:8000';
-
-console.log('🚀 API URL:', API_BASE_URL);
-
-// State Management
-let currentUser = null;
-let authToken = null;
-let demoAttempts = 3;
-
-// ... rest deiner app.js bleibt gleich
+// app-fix.js — DEPRECATED, do not use.
+// This file is intentionally empty.
+// All functionality has been moved to app.js, config.js, pricing-config.js and dashboard-new.js.
+console.log('app-fix.js: deprecated stub, no-op.');
