@@ -87,8 +87,6 @@
     '<p class="sub">Wir melden uns so schnell wie m&ouml;glich.</p>' +
     '<label class="lbl">Name (optional)</label>' +
     '<input id="fshq-name" type="text" maxlength="80" placeholder="Dein Name">' +
-    '<label class="lbl">E-Mail (optional)</label>' +
-    '<input id="fshq-email" type="email" maxlength="120" placeholder="deine@email.de">' +
     '<label class="lbl">Betreff *</label>' +
     '<input id="fshq-subject" type="text" maxlength="150" placeholder="Worum geht es?">' +
     '<label class="lbl">Kategorie</label>' +
@@ -126,7 +124,6 @@
 
   document.getElementById('fshq-send').addEventListener('click', function () {
     var name    = (document.getElementById('fshq-name').value || '').trim();
-    var email   = (document.getElementById('fshq-email').value || '').trim();
     var subject = (document.getElementById('fshq-subject').value || '').trim();
     var cat     = document.getElementById('fshq-cat').value;
     var msg     = (document.getElementById('fshq-msg').value || '').trim();
@@ -137,6 +134,10 @@
     if (msg.length < 10) { fb.style.color = '#f87171'; fb.textContent = 'Nachricht zu kurz (mind. 10 Zeichen).'; return; }
 
     btn.disabled = true; btn.textContent = 'Wird gesendet\u2026'; fb.textContent = '';
+
+    // E-Mail automatisch aus dem angemeldeten Account lesen
+    var email = '';
+    try { var _u = localStorage.getItem('currentUser'); if (_u) email = JSON.parse(_u).email || ''; } catch (_) {}
 
     fetch(HQ + '/api/support/submit', {
       method: 'POST',
@@ -156,7 +157,7 @@
         saveTicket(data.ticket_id, data.user_token);
         fb.style.color = '#4ade80';
         fb.textContent = '\u2713 Ticket #' + data.ticket_id + ' erstellt! Wir melden uns bald.';
-        ['fshq-name','fshq-email','fshq-subject','fshq-msg'].forEach(function (id) {
+        ['fshq-name','fshq-subject','fshq-msg'].forEach(function (id) {
           document.getElementById(id).value = '';
         });
         setTimeout(closeSupport, 3200);

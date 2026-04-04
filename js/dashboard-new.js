@@ -173,6 +173,7 @@ function loadPageData(pageName) {
             break;
         case 'usage':
             loadUsageData();
+            renderUsageChart();
             break;
         case 'status':
             loadStatusData();
@@ -532,7 +533,7 @@ document.getElementById('upgrade-to-pro-btn')?.addEventListener('click', () => {
 });
 
 document.getElementById('contact-enterprise-btn')?.addEventListener('click', () => {
-    showToast('Enterprise-Kontakt: support@framespell.de', 'info');
+    showToast('Enterprise-Kontakt: Support -> Enterprise Anfrage schicken', 'info');
 });
 
 document.getElementById('downgrade-to-free-btn')?.addEventListener('click', async () => {
@@ -559,8 +560,123 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
 });
 
+// ─── Usage Chart ────────────────────────────────────────────────────────────
+let _usageChart = null;
+
+async function renderUsageChart() {
+    const canvas = document.getElementById('usage-chart');
+    if (!canvas) return;
+
+    // 7 Tages-Labels
+    const labels = [];
+    const today  = new Date();
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        labels.push(d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }));
+    }
+
+    // Daten vom /usage-Endpoint holen (falls vorhanden), sonst Platzhalter
+    let dailyData = new Array(7).fill(0);
+    try {
+        const apiBase = (window.API_CONFIG && window.API_CONFIG.BASE_URL)
+            ? window.API_CONFIG.BASE_URL
+            : 'https://rechtschreibe-api.karol-paschek.workers.dev';
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            const res = await fetch(`${apiBase}/usage?period=7d`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+                signal: AbortSignal.timeout(6000)
+            });
+            if (res.ok) {
+                const json = await res.json();
+                // Erwartet: { daily: [{date:'YYYY-MM-DD', count:N}, ...] }
+                const raw = (json.data && json.data.daily) || json.daily || [];
+                if (Array.isArray(raw) && raw.length) {
+                    // Ordne die zurückgegebenen Tage den Labels zu
+                    const map = {};
+                    raw.forEach(function (row) {
+                        const d = new Date(row.date);
+                        const key = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+                        map[key] = (row.count || row.requests || 0);
+                    });
+                    dailyData = labels.map(function (l) { return map[l] || 0; });
+                }
+            }
+        }
+    } catch (_) {
+        // Wenn API keinen /usage?period=7d Endpoint hat, nutzen wir den
+        // heute-Wert für den letzten Balken
+        if (currentUser) {
+            dailyData[6] = currentUser.tokens_used_today || 0;
+        }
+    }
+
+    // Alten Chart zerstören falls vorhanden
+    if (_usageChart) { _usageChart.destroy(); _usageChart = null; }
+
+    const isDark = true; // Dashboard ist immer dark
+    const gridColor  = 'rgba(255,255,255,0.07)';
+    const labelColor = '#a1a1aa';
+    const accent     = '#8b5cf6';
+    const accentFill = 'rgba(139,92,246,0.15)';
+
+    _usageChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'API-Anfragen',
+                data: dailyData,
+                borderColor: accent,
+                backgroundColor: accentFill,
+                borderWidth: 2.5,
+                pointBackgroundColor: accent,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                tension: 0.35,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1a1a2e',
+                    borderColor: '#2d2d44',
+                    borderWidth: 1,
+                    titleColor: '#e4e4e7',
+                    bodyColor: '#a1a1aa',
+                    callbacks: {
+                        label: function (ctx) { return ' ' + ctx.parsed.y + ' Anfragen'; }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor },
+                    ticks: { color: labelColor, font: { size: 12 } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: {
+                        color: labelColor,
+                        font: { size: 12 },
+                        precision: 0,
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
 // Export
-window.openDashboardNew   = openDashboardNew;
+window.renderUsageChart = renderUsageChart;
+
 window.closeDashboardNew  = closeDashboardNew;
 window.switchToPage       = switchToPage;
 

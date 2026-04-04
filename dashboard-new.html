@@ -351,6 +351,17 @@ curl -X POST https://api.rechtschreibe-api.de/spellcheck \
                         </div>
                     </div>
 
+                    <!-- Usage Chart -->
+                    <div class="content-card full-width">
+                        <h2>API-Nutzung der letzten 7 Tage</h2>
+                        <div style="position:relative;height:260px;margin-top:12px;">
+                            <canvas id="usage-chart"></canvas>
+                        </div>
+                        <p style="margin-top:10px;font-size:0.82rem;color:var(--text-secondary,#a1a1aa);">
+                            Zeigt die tägliche Anzahl an API-Anfragen der letzten 7 Tage.
+                        </p>
+                    </div>
+
                     <!-- API Tester -->
                     <div class="content-card full-width">
                         <h2>API live testen</h2>
@@ -396,6 +407,7 @@ curl -X POST https://api.rechtschreibe-api.de/spellcheck \
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/pricing-config.js"></script>
     <script src="js/app.js?v=2.1"></script>

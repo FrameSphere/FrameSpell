@@ -119,7 +119,7 @@
 
   document.getElementById('modal-contact-enterprise')?.addEventListener('click', () => {
     if (typeof hideElement === 'function') hideElement(planModal);
-    if (typeof showToast === 'function') showToast('Enterprise-Kontakt: support@framespell.de', 'info');
+    if (typeof showToast === 'function') showToast('Enterprise-Kontakt: Support -> Enterprise Anfrage schicken', 'info');
   });
 
   document.getElementById('modal-downgrade-free')?.addEventListener('click', () => {
