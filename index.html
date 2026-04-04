@@ -1195,6 +1195,10 @@ curl -X POST https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck \
                     <i class="fas fa-life-ring"></i>
                     <span>Support</span>
                 </button>
+                <button class="dashboard-tab" data-page="status">
+                    <i class="fas fa-signal"></i>
+                    <span>Status</span>
+                </button>
             </div>
             <div class="dashboard-user-info">
                 <i class="fas fa-user-circle"></i>
@@ -1644,6 +1648,118 @@ curl -X POST https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck \
                                 <summary style="font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;justify-content:space-between">Wie schnell wird mein Ticket beantwortet? <i class="fas fa-chevron-down" style="font-size:.75rem;color:var(--text-muted)"></i></summary>
                                 <p style="margin-top:.65rem;font-size:.85rem;color:var(--text-secondary);line-height:1.6">Wir versuchen alle Tickets innerhalb von 24–48 Stunden zu beantworten. Pro-Kunden erhalten bevorzugten Support.</p>
                             </details>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- STATUS PAGE -->
+            <div class="dashboard-page" id="page-status">
+                <div class="page-header">
+                    <h1><i class="fas fa-signal"></i> System-Status</h1>
+                    <p>Live-Status aller Dienste und KI-Modelle</p>
+                </div>
+                <div class="content-grid">
+
+                    <!-- Overall Status -->
+                    <div class="content-card full-width">
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+                            <h2 style="margin:0">Alle Dienste</h2>
+                            <div style="display:flex;align-items:center;gap:.75rem">
+                                <span style="font-size:.8rem;color:var(--text-muted)">Zuletzt gepr&uuml;ft: <strong id="status-last-checked">&ndash;</strong></span>
+                                <button onclick="loadStatusData()" style="padding:.4rem .9rem;border-radius:7px;border:1px solid var(--border);background:var(--background);color:var(--text-primary);font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.4rem;font-family:inherit">
+                                    <i class="fas fa-sync-alt"></i> Neu pr&uuml;fen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Worker -->
+                    <div class="content-card">
+                        <div style="display:flex;align-items:flex-start;gap:1rem">
+                            <div style="width:42px;height:42px;border-radius:10px;background:rgba(99,102,241,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <i class="fas fa-server" style="color:#6366f1;font-size:1.1rem"></i>
+                            </div>
+                            <div style="flex:1;min-width:0">
+                                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.35rem">
+                                    <h3 style="font-size:1rem;margin:0">API Worker</h3>
+                                    <span id="status-api-badge" style="font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:4px;background:#7b7b9922;color:#7b7b99">Pr&uuml;fe&hellip;</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:.5rem">
+                                    <div id="status-api-dot" style="width:8px;height:8px;border-radius:50%;background:#7b7b99;flex-shrink:0"></div>
+                                    <span id="status-api-text" style="font-size:.85rem;color:var(--text-muted)">Wird gepr&uuml;ft&hellip;</span>
+                                </div>
+                                <p style="font-size:.8rem;color:var(--text-muted);margin-top:.5rem">Cloudflare Worker &middot; REST API &middot; Auth &middot; Rate Limiting</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ML Model -->
+                    <div class="content-card">
+                        <div style="display:flex;align-items:flex-start;gap:1rem">
+                            <div style="width:42px;height:42px;border-radius:10px;background:rgba(16,185,129,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <i class="fas fa-brain" style="color:#10b981;font-size:1.1rem"></i>
+                            </div>
+                            <div style="flex:1;min-width:0">
+                                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.35rem">
+                                    <h3 style="font-size:1rem;margin:0">KI-Modell (MT5)</h3>
+                                    <span id="status-ml-badge" style="font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:4px;background:#7b7b9922;color:#7b7b99">Pr&uuml;fe&hellip;</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:.5rem">
+                                    <div id="status-ml-dot" style="width:8px;height:8px;border-radius:50%;background:#7b7b99;flex-shrink:0"></div>
+                                    <span id="status-ml-text" style="font-size:.85rem;color:var(--text-muted)">Wird gepr&uuml;ft&hellip;</span>
+                                </div>
+                                <p style="font-size:.8rem;color:var(--text-muted);margin-top:.5rem">HuggingFace Space &middot; MT5 Rechtschreibkorrektur &middot; Kann 30&ndash;60s Warmup ben&ouml;tigen</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auth -->
+                    <div class="content-card">
+                        <div style="display:flex;align-items:flex-start;gap:1rem">
+                            <div style="width:42px;height:42px;border-radius:10px;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <i class="fas fa-shield-alt" style="color:#f59e0b;font-size:1.1rem"></i>
+                            </div>
+                            <div style="flex:1;min-width:0">
+                                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.35rem">
+                                    <h3 style="font-size:1rem;margin:0">Authentifizierung</h3>
+                                    <span id="status-auth-badge" style="font-size:.7rem;font-weight:700;padding:.15rem .55rem;border-radius:4px;background:#7b7b9922;color:#7b7b99">Pr&uuml;fe&hellip;</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:.5rem">
+                                    <div id="status-auth-dot" style="width:8px;height:8px;border-radius:50%;background:#7b7b99;flex-shrink:0"></div>
+                                    <span id="status-auth-text" style="font-size:.85rem;color:var(--text-muted)">Wird gepr&uuml;ft&hellip;</span>
+                                </div>
+                                <p style="font-size:.8rem;color:var(--text-muted);margin-top:.5rem">JWT-Auth &middot; Session-Validierung &middot; OAuth</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info box -->
+                    <div class="content-card full-width">
+                        <h2><i class="fas fa-info-circle"></i> Hinweise</h2>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.75rem;margin-top:.75rem">
+                            <div style="background:var(--background);border:1px solid var(--border);border-radius:10px;padding:1rem;display:flex;gap:.75rem;align-items:flex-start">
+                                <i class="fas fa-hourglass-half" style="color:#f59e0b;margin-top:2px;flex-shrink:0"></i>
+                                <div>
+                                    <div style="font-weight:600;font-size:.9rem;margin-bottom:.25rem">KI-Modell Warmup</div>
+                                    <div style="font-size:.8rem;color:var(--text-muted)">Das MT5-Modell l&auml;uft auf HuggingFace Spaces. Bei Inaktivit&auml;t &gt;15 Min. startet es neu (~30&ndash;60s). Die erste Anfrage kann l&auml;nger dauern.</div>
+                                </div>
+                            </div>
+                            <div style="background:var(--background);border:1px solid var(--border);border-radius:10px;padding:1rem;display:flex;gap:.75rem;align-items:flex-start">
+                                <i class="fas fa-globe" style="color:#6366f1;margin-top:2px;flex-shrink:0"></i>
+                                <div>
+                                    <div style="font-weight:600;font-size:.9rem;margin-bottom:.25rem">Cloudflare Edge</div>
+                                    <div style="font-size:.8rem;color:var(--text-muted)">Der API-Worker l&auml;uft auf dem Cloudflare-Edge-Netzwerk mit globaler Verf&uuml;gbarkeit und automatischem Failover.</div>
+                                </div>
+                            </div>
+                            <div style="background:var(--background);border:1px solid var(--border);border-radius:10px;padding:1rem;display:flex;gap:.75rem;align-items:flex-start">
+                                <i class="fas fa-envelope" style="color:#10b981;margin-top:2px;flex-shrink:0"></i>
+                                <div>
+                                    <div style="font-weight:600;font-size:.9rem;margin-bottom:.25rem">Probleme melden</div>
+                                    <div style="font-size:.8rem;color:var(--text-muted)">St&ouml;rungen bitte per <a href="mailto:support@framespell.de" style="color:#6366f1">support@framespell.de</a> oder &uuml;ber den Support-Tab melden.</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

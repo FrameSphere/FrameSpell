@@ -182,6 +182,7 @@ async function login(email, password) {
     localStorage.setItem('authToken', authToken);
     
     currentUser = data.user;
+    window.currentUser = currentUser; // expose globally for plan-modal.js etc.
     updateUI();
     showToast('Erfolgreich angemeldet!', 'success');
     
@@ -199,6 +200,7 @@ async function register(email, password) {
     localStorage.setItem('authToken', authToken);
     
     currentUser = data.user;
+    window.currentUser = currentUser;
     updateUI();
     showToast('Registrierung erfolgreich!', 'success');
     
@@ -209,6 +211,7 @@ async function loadUserProfile() {
     const response = await apiRequest('/me');
     const data = response.data || response;
     currentUser = data;
+    window.currentUser = currentUser; // keep global in sync
     updateUI();
     return data;
 }
@@ -346,6 +349,34 @@ function updateUI() {
             }
             
             elements.usageCost.textContent = `€${monthlyCost.toFixed(2)}`;
+        }
+        
+        // ── Update pricing section buttons dynamically ──────────────────────
+        const subType = currentUser.subscription_type || 'free';
+        const pricingFreeBtn = document.getElementById('pricing-free-btn');
+        const pricingProBtn  = document.getElementById('pricing-pro-btn');
+        if (pricingFreeBtn) {
+            if (subType === 'free') {
+                pricingFreeBtn.textContent = 'Aktueller Plan';
+                pricingFreeBtn.disabled = true;
+            } else {
+                pricingFreeBtn.textContent = 'Downgrade zu Free';
+                pricingFreeBtn.disabled = false;
+            }
+        }
+        if (pricingProBtn) {
+            if (subType === 'professional') {
+                pricingProBtn.textContent = '✓ Aktueller Plan';
+                pricingProBtn.disabled = true;
+                pricingProBtn.style.background = 'var(--success)';
+            } else if (subType === 'enterprise') {
+                pricingProBtn.textContent = 'Sie haben Enterprise';
+                pricingProBtn.disabled = true;
+            } else {
+                pricingProBtn.textContent = 'Jetzt upgraden';
+                pricingProBtn.disabled = false;
+                pricingProBtn.style.background = '';
+            }
         }
         
     } else {
@@ -559,6 +590,7 @@ function handleRegister(event) {
 function handleLogout() {
     authToken = null;
     currentUser = null;
+    window.currentUser = null;
     localStorage.removeItem('authToken');
     
     updateUI();

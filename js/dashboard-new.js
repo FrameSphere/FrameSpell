@@ -166,12 +166,16 @@ function loadPageData(pageName) {
     switch(pageName) {
         case 'profile':
             loadProfileData();
+            updatePlanDisplay();
             break;
         case 'api-keys':
             loadApiKeysData();
             break;
         case 'usage':
             loadUsageData();
+            break;
+        case 'status':
+            loadStatusData();
             break;
     }
 }
@@ -188,6 +192,9 @@ function updateDashboardUI() {
     loadProfileData();
     loadApiKeysData();
     loadUsageData();
+    updatePlanDisplay();
+    // Trigger plan-modal compact display update
+    if (typeof window.updateUI === 'function') window.updateUI();
 }
 
 // ── Helper: get rate limit for subscription type ───────────────────────────────
@@ -552,3 +559,110 @@ document.addEventListener('DOMContentLoaded', () => {
 window.openDashboardNew   = openDashboardNew;
 window.closeDashboardNew  = closeDashboardNew;
 window.switchToPage       = switchToPage;
+
+// ─── Status Page ──────────────────────────────────────────────────────────────
+async function loadStatusData() {
+    const apiBase = (window.API_CONFIG && window.API_CONFIG.BASE_URL)
+        ? window.API_CONFIG.BASE_URL
+        : 'https://rechtschreibe-api.karol-paschek.workers.dev';
+    const hfSpace = 'https://framespherehf-mt5-rechtschreibkorrektur.hf.space';
+
+    // ── API Worker ──
+    updateStatusItem('status-api', 'checking', 'Wird geprüft…');
+    try {
+        const t0  = Date.now();
+        const res = await fetch(`${apiBase}/health`, { signal: AbortSignal.timeout(6000) });
+        const ms  = Date.now() - t0;
+        if (res.ok) {
+            updateStatusItem('status-api', 'online', `Online · ${ms}ms`);
+        } else {
+            updateStatusItem('status-api', 'degraded', `HTTP ${res.status}`);
+        }
+    } catch (e) {
+        updateStatusItem('status-api', 'offline', 'Nicht erreichbar');
+    }
+
+    // ── ML Model (HuggingFace Space) ──
+    updateStatusItem('status-ml', 'checking', 'Wird geprüft…');
+    try {
+        const t0  = Date.now();
+        const res = await fetch(`${hfSpace}/correct`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: 'Test' }),
+            signal: AbortSignal.timeout(15000)
+        });
+        const ms = Date.now() - t0;
+        if (res.ok) {
+            const label = ms > 8000 ? `Langsam · ${ms}ms (Warmup?)` : `Online · ${ms}ms`;
+            const state = ms > 8000 ? 'degraded' : 'online';
+            updateStatusItem('status-ml', state, label);
+        } else if (res.status === 503) {
+            updateStatusItem('status-ml', 'degraded', 'Warmup läuft – bitte warten');
+        } else {
+            updateStatusItem('status-ml', 'degraded', `HTTP ${res.status}`);
+        }
+    } catch (e) {
+        if (e.name === 'TimeoutError') {
+            updateStatusItem('status-ml', 'degraded', 'Timeout (>15s) – Modell startet');
+        } else {
+            updateStatusItem('status-ml', 'offline', 'Nicht erreichbar');
+        }
+    }
+
+    // ── Authentifizierung ──
+    updateStatusItem('status-auth', 'checking', 'Wird geprüft…');
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        updateStatusItem('status-auth', 'degraded', 'Kein Token');
+    } else {
+        try {
+            const t0  = Date.now();
+            const res = await fetch(`${apiBase}/me`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+                signal: AbortSignal.timeout(6000)
+            });
+            const ms = Date.now() - t0;
+            if (res.ok) {
+                updateStatusItem('status-auth', 'online', `Authentifiziert · ${ms}ms`);
+            } else if (res.status === 401) {
+                updateStatusItem('status-auth', 'degraded', 'Token abgelaufen');
+            } else {
+                updateStatusItem('status-auth', 'degraded', `HTTP ${res.status}`);
+            }
+        } catch (e) {
+            updateStatusItem('status-auth', 'offline', 'Nicht erreichbar');
+        }
+    }
+
+    // ── Timestamp ──
+    const el = document.getElementById('status-last-checked');
+    if (el) el.textContent = new Date().toLocaleTimeString('de-DE');
+}
+
+function updateStatusItem(id, state, label) {
+    const dot   = document.getElementById(`${id}-dot`);
+    const text  = document.getElementById(`${id}-text`);
+    const badge = document.getElementById(`${id}-badge`);
+
+    const colors = {
+        checking: '#7b7b99',
+        online:   '#10b981',
+        degraded: '#f59e0b',
+        offline:  '#ef4444',
+    };
+    const labels = {
+        checking: 'Prüfe…',
+        online:   'Online',
+        degraded: 'Beeinträchtigt',
+        offline:  'Offline',
+    };
+
+    if (dot)   dot.style.background   = colors[state] || colors.checking;
+    if (text)  text.textContent        = label;
+    if (badge) {
+        badge.textContent   = labels[state] || state;
+        badge.style.color   = colors[state];
+        badge.style.background = colors[state] + '22';
+    }
+}
