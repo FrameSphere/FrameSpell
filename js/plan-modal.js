@@ -123,10 +123,19 @@
   });
 
   document.getElementById('modal-downgrade-free')?.addEventListener('click', () => {
-    if (!confirm('Möchten Sie wirklich auf den kostenlosen Plan zurückkehren?\nIhre Professional-Vorteile gehen am Ende des Abrechnungszeitraums verloren.')) return;
-    if (typeof hideElement === 'function') hideElement(planModal);
-    if (typeof showToast === 'function') showToast('Downgrade geplant für Ende des Abrechnungszeitraums', 'success');
-    // TODO: Backend-API-Call für Stripe-Kündigung
+    const user = window.currentUser;
+    // Pro/Enterprise User → direkt ins Billing Portal (Stripe Kündigung)
+    if (user && (user.subscription_type === 'professional' || user.subscription_type === 'enterprise')) {
+      if (typeof hideElement === 'function') hideElement(planModal);
+      if (typeof openBillingPortal === 'function') {
+        openBillingPortal();
+      } else {
+        if (typeof showToast === 'function') showToast('Bitte nutze das Billing Portal zum Kündigen.', 'info');
+      }
+      return;
+    }
+    // Bereits Free
+    if (typeof showToast === 'function') showToast('Du nutzt bereits den kostenlosen Plan.', 'info');
   });
 
   // ── Hook in globales updateUI ───────────────────────────────────────────────

@@ -174,11 +174,14 @@ function loadPageData(pageName) {
         case 'usage':
             loadUsageData();
             renderUsageChart();
+            startUsagePoll();   // Live-Polling starten
             break;
         case 'status':
             loadStatusData();
             break;
     }
+    // Polling stoppen wenn nicht auf Usage-Seite
+    if (pageName !== 'usage') stopUsagePoll();
 }
 
 // Update Dashboard UI
@@ -467,28 +470,62 @@ function integrateNewDashboard() {
 
 // Settings Management
 function initSettingsHandlers() {
-    const allowPaidCheckbox         = document.getElementById('allow-paid-requests');
+    const allowPaidCheckbox          = document.getElementById('allow-paid-requests');
     const emailNotificationsCheckbox = document.getElementById('email-notifications');
-    const saveSettingsBtn           = document.getElementById('save-settings-btn');
+    const saveSettingsBtn            = document.getElementById('save-settings-btn');
 
     function loadSettings() {
-        const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
-        if (allowPaidCheckbox)          allowPaidCheckbox.checked          = settings.allowPaidRequests !== false;
-        if (emailNotificationsCheckbox) emailNotificationsCheckbox.checked = settings.emailNotifications !== false;
+        if (currentUser) {
+            if (allowPaidCheckbox)          allowPaidCheckbox.checked          = !!currentUser.allow_paid_requests;
+            if (emailNotificationsCheckbox) emailNotificationsCheckbox.checked = currentUser.email_notify_80pct !== 0;
+        } else {
+            const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+            if (allowPaidCheckbox)          allowPaidCheckbox.checked          = settings.allowPaidRequests !== false;
+            if (emailNotificationsCheckbox) emailNotificationsCheckbox.checked = settings.emailNotifications !== false;
+        }
     }
 
     async function saveSettings() {
+        // Lokal speichern
         const settings = {
-            allowPaidRequests:    allowPaidCheckbox?.checked,
-            emailNotifications:   emailNotificationsCheckbox?.checked,
+            allowPaidRequests:  allowPaidCheckbox?.checked,
+            emailNotifications: emailNotificationsCheckbox?.checked,
         };
         localStorage.setItem('userSettings', JSON.stringify(settings));
-        showToast('Einstellungen gespeichert!', 'success');
+
+        // Auf Server speichern (wenn eingeloggt)
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            const apiBase = (window.API_CONFIG && window.API_CONFIG.BASE_URL) || 'https://rechtschreibe-api.karol-paschek.workers.dev';
+            try {
+                const res = await fetch(`${apiBase}/settings`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        allow_paid_requests: allowPaidCheckbox?.checked ?? false,
+                        email_notify_80pct:  emailNotificationsCheckbox?.checked ?? true,
+                    }),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    // currentUser-Cache aktualisieren
+                    if (window.currentUser) {
+                        window.currentUser.allow_paid_requests = allowPaidCheckbox?.checked ? 1 : 0;
+                        window.currentUser.email_notify_80pct  = emailNotificationsCheckbox?.checked ? 1 : 0;
+                    }
+                    showToast('Einstellungen gespeichert!', 'success');
+                } else {
+                    showToast('Gespeichert (offline)', 'info');
+                }
+            } catch (err) {
+                showToast('Lokal gespeichert – Server nicht erreichbar', 'warning');
+            }
+        } else {
+            showToast('Einstellungen gespeichert!', 'success');
+        }
     }
 
-    if (saveSettingsBtn) {
-        saveSettingsBtn.addEventListener('click', saveSettings);
-    }
+    if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveSettings);
     loadSettings();
 }
 
@@ -676,7 +713,93 @@ async function renderUsageChart() {
 
 // Export
 window.renderUsageChart = renderUsageChart;
+window.openDashboardNew   = openDashboardNew;
 
+// ─── Live Usage Polling ───────────────────────────────────────────────
+let _usagePollTimer = null;
+
+async function pollUsageNow() {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    const apiBase = (window.API_CONFIG && window.API_CONFIG.BASE_URL) || 'https://rechtschreibe-api.karol-paschek.workers.dev';
+    try {
+        const res = await fetch(`${apiBase}/usage/quick`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+            signal: AbortSignal.timeout(5000)
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const data = json.data;
+        if (data && data.rate_limit) {
+            loadUsageDataFromRateLimit(data.rate_limit);
+            // Balance anzeigen
+            if (typeof data.token_balance !== 'undefined') {
+                updateBalanceDisplay(data.token_balance);
+            }
+        }
+    } catch (_) {}
+}
+
+function startUsagePoll() {
+    stopUsagePoll();
+    pollUsageNow(); // sofort laden
+    _usagePollTimer = setInterval(pollUsageNow, 30000); // alle 30s
+}
+
+function stopUsagePoll() {
+    if (_usagePollTimer) { clearInterval(_usagePollTimer); _usagePollTimer = null; }
+}
+
+// Balance im UI anzeigen
+function updateBalanceDisplay(balance) {
+    const el = document.getElementById('balance-display');
+    if (el) el.textContent = balance + ' Credits';
+    const el2 = document.getElementById('balance-amount');
+    if (el2) el2.textContent = balance;
+}
+window.updateBalanceDisplay = updateBalanceDisplay;
+
+// Credits kaufen via Stripe
+async function buyCredits(packageId) {
+    const token = localStorage.getItem('authToken');
+    if (!token) { showToast('Bitte zuerst anmelden', 'error'); return; }
+    const apiBase = (window.API_CONFIG && window.API_CONFIG.BASE_URL) || 'https://rechtschreibe-api.karol-paschek.workers.dev';
+    try {
+        showLoading();
+        const res = await fetch(`${apiBase}/checkout/credits`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ package_id: packageId }),
+        });
+        const data = await res.json();
+        hideLoading();
+        if (data.success && data.data.checkout_url) {
+            window.location.href = data.data.checkout_url;
+        } else {
+            showToast(data.error || 'Fehler beim Öffnen des Checkouts', 'error');
+        }
+    } catch (err) {
+        hideLoading();
+        showToast('Verbindungsfehler', 'error');
+    }
+}
+window.buyCredits = buyCredits;
+
+// After-Spellcheck-Hook: Live-Card + Chart aktualisieren
+// Wird von runUsageTest() nach einer erfolgreichen Anfrage aufgerufen
+function onAfterSpellcheck(responseData) {
+    if (!responseData) return;
+    if (responseData.rate_limit) {
+        loadUsageDataFromRateLimit(responseData.rate_limit);
+    }
+    if (typeof responseData.balance_remaining !== 'undefined') {
+        updateBalanceDisplay(responseData.balance_remaining);
+        if (currentUser) currentUser.token_balance = responseData.balance_remaining;
+    }
+    // Chart nach 2s neu laden (DB-Eintrag braucht kurz)
+    setTimeout(renderUsageChart, 2000);
+}
+window.onAfterSpellcheck = onAfterSpellcheck;
 window.closeDashboardNew  = closeDashboardNew;
 window.switchToPage       = switchToPage;
 
