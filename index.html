@@ -1305,6 +1305,12 @@ curl -X POST https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck \
                             <button class="btn btn-primary btn-full" id="manage-plan-btn">
                                 <i class="fas fa-cog"></i> Plan ändern
                             </button>
+                            <!-- Billing Portal – only shown for paid plans -->
+                            <button class="btn btn-outline btn-full" id="billing-portal-btn"
+                                onclick="openBillingPortal()"
+                                style="margin-top:.6rem;display:none">
+                                <i class="fas fa-external-link-alt"></i> Abo &amp; Zahlung verwalten
+                            </button>
                         </div>
                     </div>
 
@@ -1840,6 +1846,17 @@ curl -X POST https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck \
                             <i class="fas fa-star"></i> Aktueller Plan
                         </div>
                     </div>
+                </div>
+
+                <!-- Billing Portal Row (shown for paid users) -->
+                <div id="billing-portal-row" style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);display:none;text-align:center">
+                    <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:.75rem">
+                        <i class="fas fa-credit-card"></i>&nbsp;
+                        Rechnungen, Zahlungsmethoden &amp; Abo-Kündigung können direkt im Stripe-Portal verwaltet werden.
+                    </p>
+                    <button class="btn btn-outline" id="billing-portal-btn-modal" onclick="openBillingPortal()" style="gap:.5rem">
+                        <i class="fas fa-external-link-alt"></i> Abo &amp; Zahlung verwalten
+                    </button>
                 </div>
             </div>
         </div>

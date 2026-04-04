@@ -496,6 +496,7 @@ function updatePlanDisplay() {
     if (!currentUser) return;
     
     const subType  = currentUser.subscription_type || 'free';
+    const isPaid   = subType === 'professional' || subType === 'enterprise';
     const names    = { free: 'Kostenlos', professional: 'Professional', enterprise: 'Enterprise' };
     const planName = names[subType] || 'Kostenlos';
     
@@ -504,9 +505,12 @@ function updatePlanDisplay() {
     
     const upgradeToProBtn    = document.getElementById('upgrade-to-pro-btn');
     const downgradeToFreeBtn = document.getElementById('downgrade-to-free-btn');
+    const billingPortalBtn   = document.getElementById('billing-portal-btn');
     
     if (upgradeToProBtn)    upgradeToProBtn.style.display    = subType === 'professional' ? 'none'  : 'block';
     if (downgradeToFreeBtn) downgradeToFreeBtn.style.display = subType !== 'free'        ? 'block' : 'none';
+    // Show billing portal button only for paid users
+    if (billingPortalBtn)   billingPortalBtn.style.display   = isPaid                   ? 'block' : 'none';
     
     const billingInfo = document.getElementById('billing-info');
     if (billingInfo) {
@@ -559,6 +563,61 @@ document.addEventListener('DOMContentLoaded', () => {
 window.openDashboardNew   = openDashboardNew;
 window.closeDashboardNew  = closeDashboardNew;
 window.switchToPage       = switchToPage;
+
+// ─── Stripe Billing Portal ───────────────────────────────────────────────────
+async function openBillingPortal() {
+    const btn = document.getElementById('billing-portal-btn');
+    const btnModal = document.getElementById('billing-portal-btn-modal');
+    
+    // Show loading state on both buttons
+    [btn, btnModal].forEach(b => {
+        if (b) {
+            b.disabled = true;
+            b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Öffne Portal…';
+        }
+    });
+
+    try {
+        const apiBase = (window.API_CONFIG && window.API_CONFIG.BASE_URL)
+            ? window.API_CONFIG.BASE_URL
+            : 'https://rechtschreibe-api.karol-paschek.workers.dev';
+
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            showToast('Bitte melde dich zuerst an', 'error');
+            return;
+        }
+
+        const res = await fetch(`${apiBase}/billing/portal`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.data?.url) {
+            throw new Error(data.error || 'Billing-Portal konnte nicht geöffnet werden');
+        }
+
+        // Redirect to Stripe Billing Portal
+        window.location.href = data.data.url;
+
+    } catch (err) {
+        console.error('Billing portal error:', err);
+        showToast(err.message || 'Fehler beim Öffnen des Portals', 'error');
+        // Restore buttons
+        [btn, btnModal].forEach(b => {
+            if (b) {
+                b.disabled = false;
+                b.innerHTML = '<i class="fas fa-external-link-alt"></i> Abo &amp; Zahlung verwalten';
+            }
+        });
+    }
+}
+window.openBillingPortal = openBillingPortal;
 
 // ─── Status Page ──────────────────────────────────────────────────────────────
 async function loadStatusData() {

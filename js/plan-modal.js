@@ -50,6 +50,7 @@
     const user = window.currentUser;
     if (!user) return;
     const subType = user.subscription_type || 'free';
+    const isPaid = subType === 'professional' || subType === 'enterprise';
 
     const freeEl       = document.getElementById('modal-free-current');
     const proEl        = document.getElementById('modal-pro-current');
@@ -64,6 +65,10 @@
 
     if (downgradeFreeBtn) downgradeFreeBtn.style.display = subType !== 'free'         ? 'block' : 'none';
     if (upgradeProBtn)    upgradeProBtn.style.display    = subType === 'professional'  ? 'none'  : 'block';
+
+    // Billing Portal Row – nur für zahlende Kunden
+    const billingPortalRow = document.getElementById('billing-portal-row');
+    if (billingPortalRow) billingPortalRow.style.display = isPaid ? 'block' : 'none';
   }
 
   // ── Kompaktanzeige im Dashboard aktualisieren ───────────────────────────────
