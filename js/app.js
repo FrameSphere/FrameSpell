@@ -1121,7 +1121,7 @@ function setupEventListeners() {
     
     document.getElementById('pricing-enterprise-btn')?.addEventListener('click', () => {
         // Enterprise requires contact - show modal or toast
-        showToast('Für Enterprise-Lösungen kontaktieren Sie uns bitte: support@rechtschreibe-api.de', 'info');
+        showToast('Für Enterprise-Lösungen kontaktieren Sie uns bitte über den Support im Dashboard', 'info');
     });
     
     // Profile status badge click - link to pricing
