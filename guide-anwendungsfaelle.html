@@ -260,7 +260,7 @@ textarea.addEventListener('input', () => {
             <span class="code-label">Python – FrameSpell als LLM Pre-Processor</span>
             <pre><code">import os, requests
 
-SPELL_URL = "https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck"
+SPELL_URL = "https://framespell.pages.dev/api/spellcheck"
 SPELL_KEY  = os.environ["FRAMESPELL_API_KEY"]
 
 def preprocess_prompt(user_input: str) -> str:
@@ -312,7 +312,7 @@ print(answer)  # Prompt wird zu: "Was ist die Hauptstadt von Deutschland?"</code
             <pre><code">import os, requests, csv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-API_URL = "https://rechtschreibe-api.karol-paschek.workers.dev/spellcheck"
+API_URL = "https://framespell.pages.dev/api/spellcheck"
 API_KEY = os.environ["FRAMESPELL_API_KEY"]
 
 def correct_product(row):

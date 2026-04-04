@@ -52,8 +52,9 @@
                 return;
             }
             
-            // Redirect to OAuth endpoint
-            const redirectUrl = `${window.API_CONFIG.BASE_URL}/oauth/${provider}/authorize?redirect_uri=${encodeURIComponent(window.location.origin + '/oauth-callback.html')}`;
+            // OAuth: direkt zum Worker (OAUTH_BASE_URL), nie durch den Pages-Proxy!
+            const oauthBase = window.API_CONFIG.OAUTH_BASE_URL || window.API_CONFIG.BASE_URL;
+            const redirectUrl = `${oauthBase}/oauth/${provider}/authorize?redirect_uri=${encodeURIComponent(window.location.origin + '/oauth-callback.html')}`;
             window.location.href = redirectUrl;
             
         } catch (error) {

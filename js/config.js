@@ -1,19 +1,24 @@
 // API Configuration für Cloudflare Workers Backend
 // Diese Datei MUSS VOR app.js geladen werden!
 
-// Wenn die Seite auf framespell.pages.dev läuft, leiten wir über die
-// Pages-eigene /api-Route weiter (saubere URL, kein Worker-Name sichtbar).
-// Im lokalen Dev oder auf anderen Domains wird der Worker direkt angesprochen.
 (function () {
+    var WORKER_DIRECT = 'https://rechtschreibe-api.karol-paschek.workers.dev';
+
     var isPagesDomain = (
         window.location.hostname === 'framespell.pages.dev' ||
         window.location.hostname.endsWith('.framespell.pages.dev')
     );
 
     window.API_CONFIG = {
+        // Reguläre API-Calls: auf Pages über /api proxied (saubere URL)
         BASE_URL: isPagesDomain
             ? (window.location.origin + '/api')
-            : 'https://rechtschreibe-api.karol-paschek.workers.dev',
+            : WORKER_DIRECT,
+
+        // OAuth: IMMER direkt zum Worker – Redirects müssen vom Browser
+        // nativ gefolgt werden, nicht server-seitig durch den Proxy.
+        OAUTH_BASE_URL: WORKER_DIRECT,
+
         ENDPOINTS: {
             HEALTH:          '/health',
             REGISTER:        '/register',
@@ -25,5 +30,6 @@
         }
     };
 
-    console.log('✅ API Config loaded:', window.API_CONFIG.BASE_URL);
+    console.log('✅ API Config loaded:', window.API_CONFIG.BASE_URL,
+                '| OAuth direct:', window.API_CONFIG.OAUTH_BASE_URL);
 })();
